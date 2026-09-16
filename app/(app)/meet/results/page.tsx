@@ -5,13 +5,14 @@ import { searchRoux } from "@/lib/flynet/adapter";
 import { lookupZip } from "@/lib/zips";
 
 type PageProps = {
-  searchParams: Promise<{ a?: string; b?: string; now?: string }>;
+  searchParams: Promise<{ a?: string; b?: string; now?: string; beat?: string }>;
 };
 
 export default async function MeetResultsPage(props: PageProps) {
   const searchParams = await props.searchParams;
   const a = typeof searchParams.a === "string" ? searchParams.a : "";
   const b = typeof searchParams.b === "string" ? searchParams.b : "";
+  const beat = typeof searchParams.beat === "string" ? searchParams.beat : undefined;
 
   if (!a || !b) {
     redirect("/meet");
@@ -48,7 +49,7 @@ export default async function MeetResultsPage(props: PageProps) {
       {/* Back link */}
       <div className="mb-4">
         <Link
-          href={`/meet?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`}
+          href={`/meet?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}${beat ? `&beat=${beat}` : ""}`}
           className="font-[family-name:var(--font-mono)] text-xs uppercase tracking-[0.08em] text-[var(--ink-mute)] hover:text-[var(--ink)] inline-block transition-colors"
         >
           ← Change places
@@ -87,14 +88,18 @@ export default async function MeetResultsPage(props: PageProps) {
           data-count={spots.length}
           className="divide-y divide-[var(--rule)] border-t border-b border-[var(--rule)]"
         >
-          {spots.map((spot) => (
-            <li key={spot.id}>
-              <Link
-                href={`/spot/${spot.id}?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}`}
-                data-open="true"
-                data-fly={spot.hasFlySpecial ? "true" : "false"}
-                className="flex items-baseline justify-between py-3 px-2 -mx-2 hover:bg-[var(--paper-dark)] transition-colors group"
-              >
+          {spots.map((spot, index) => {
+            const isHighlighted = beat === "5" && index === 0;
+            return (
+              <li key={spot.id}>
+                <Link
+                  href={`/spot/${spot.id}?a=${encodeURIComponent(a)}&b=${encodeURIComponent(b)}${beat ? `&beat=${beat}` : ""}`}
+                  data-open="true"
+                  data-fly={spot.hasFlySpecial ? "true" : "false"}
+                  className={`flex items-baseline justify-between py-3 px-2 -mx-2 transition-colors group ${
+                    isHighlighted ? "bg-[var(--paper-dark)]" : "hover:bg-[var(--paper-dark)]"
+                  }`}
+                >
                 <div className="flex items-baseline gap-2 min-w-0 pr-4">
                   <span className="font-[family-name:var(--font-display)] text-base sm:text-lg text-[var(--ink)] truncate group-hover:text-[var(--wine)] transition-colors">
                     {spot.name}
@@ -122,8 +127,9 @@ export default async function MeetResultsPage(props: PageProps) {
                   )}
                 </div>
               </Link>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ol>
       )}
     </div>
