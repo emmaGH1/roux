@@ -1,0 +1,14 @@
+{
+  "10003": { "name": "East Village", "lat": 40.731, "lng": -73.989 },
+  "10009": { "name": "East Village S", "lat": 40.7264, "lng": -73.979 },
+  "10011": { "name": "Chelsea", "lat": 40.741, "lng": -74.001 },
+  "10014": { "name": "West Village", "lat": 40.734, "lng": -74.006 },
+  "11201": { "name": "DUMBO / Brooklyn Heights", "lat": 40.6948, "lng": -73.9903 },
+  "11205": { "name": "Clinton Hill", "lat": 40.6945, "lng": -73.966 },
+  "11211": { "name": "Williamsburg", "lat": 40.7128, "lng": -73.9562 },
+  "11215": { "name": "Park Slope", "lat": 40.6626, "lng": -73.985 },
+  "11217": { "name": "Boerum Hill", "lat": 40.682, "lng": -73.9787 },
+  "11222": { "name": "Greenpoint", "lat": 40.7282, "lng": -73.953 },
+  "11231": { "name": "Red Hook / Carroll Gardens", "lat": 40.6784, "lng": -74.0046 },
+  "11238": { "name": "Prospect Heights", "lat": 40.679, "lng": -73.9638 }
+}

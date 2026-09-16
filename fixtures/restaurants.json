@@ -1,0 +1,171 @@
+[
+  {
+    "id": "flybar",
+    "name": "Flybar",
+    "neighborhood": "Williamsburg",
+    "cuisine": ["American", "Wine"],
+    "price": 3,
+    "lat": 40.7146,
+    "lng": -73.9572,
+    "payments_enabled": true,
+    "is_club": false,
+    "hours": [
+      { "day_of_week": "monday", "open_time": "17:00", "close_time": "23:00" },
+      { "day_of_week": "tuesday", "open_time": "17:00", "close_time": "23:00" },
+      { "day_of_week": "wednesday", "open_time": "17:00", "close_time": "23:00" },
+      { "day_of_week": "thursday", "open_time": "17:00", "close_time": "24:00" },
+      { "day_of_week": "friday", "open_time": "17:00", "close_time": "24:00" },
+      { "day_of_week": "saturday", "open_time": "12:00", "close_time": "24:00" },
+      { "day_of_week": "sunday", "open_time": "12:00", "close_time": "22:00" }
+    ],
+    "specials": [
+      {
+        "id": "flybar-fly",
+        "label": "First sitting",
+        "description": "FLY back on the opening hour.",
+        "fly_reward": true
+      }
+    ]
+  },
+  {
+    "id": "clover",
+    "name": "Clover",
+    "neighborhood": "Greenpoint",
+    "cuisine": ["Seasonal"],
+    "price": 2,
+    "lat": 40.7304,
+    "lng": -73.9542,
+    "payments_enabled": true,
+    "is_club": false,
+    "hours": [
+      { "day_of_week": "wednesday", "open_time": "17:30", "close_time": "22:30" },
+      { "day_of_week": "thursday", "open_time": "17:30", "close_time": "22:30" },
+      { "day_of_week": "friday", "open_time": "17:30", "close_time": "23:00" },
+      { "day_of_week": "saturday", "open_time": "11:00", "close_time": "23:00" },
+      { "day_of_week": "sunday", "open_time": "11:00", "close_time": "21:00" }
+    ],
+    "specials": []
+  },
+  {
+    "id": "kent-table",
+    "name": "Kent Table",
+    "neighborhood": "Williamsburg",
+    "cuisine": ["Italian"],
+    "price": 3,
+    "lat": 40.7189,
+    "lng": -73.9631,
+    "payments_enabled": true,
+    "is_club": false,
+    "hours": [
+      { "day_of_week": "tuesday", "open_time": "17:00", "close_time": "22:00" },
+      { "day_of_week": "wednesday", "open_time": "17:00", "close_time": "22:00" },
+      { "day_of_week": "thursday", "open_time": "17:00", "close_time": "22:00" },
+      { "day_of_week": "friday", "open_time": "17:00", "close_time": "23:00" },
+      { "day_of_week": "saturday", "open_time": "17:00", "close_time": "23:00" }
+    ],
+    "specials": []
+  },
+  {
+    "id": "slope-oven",
+    "name": "Slope Oven",
+    "neighborhood": "Park Slope",
+    "cuisine": ["Pizza"],
+    "price": 2,
+    "lat": 40.6682,
+    "lng": -73.9808,
+    "payments_enabled": false,
+    "is_club": false,
+    "hours": [
+      { "day_of_week": "monday", "open_time": "12:00", "close_time": "22:00" },
+      { "day_of_week": "tuesday", "open_time": "12:00", "close_time": "22:00" },
+      { "day_of_week": "wednesday", "open_time": "12:00", "close_time": "22:00" },
+      { "day_of_week": "thursday", "open_time": "12:00", "close_time": "22:00" },
+      { "day_of_week": "friday", "open_time": "12:00", "close_time": "23:00" },
+      { "day_of_week": "saturday", "open_time": "12:00", "close_time": "23:00" },
+      { "day_of_week": "sunday", "open_time": "12:00", "close_time": "22:00" }
+    ],
+    "specials": [
+      {
+        "id": "slope-lunch",
+        "label": "Walk-in lunch",
+        "description": "FLY on weekday lunch covers.",
+        "fly_reward": true
+      }
+    ]
+  },
+  {
+    "id": "atlantic-diner",
+    "name": "Atlantic Diner",
+    "neighborhood": "Boerum Hill",
+    "cuisine": ["Diner"],
+    "price": 1,
+    "lat": 40.6888,
+    "lng": -73.9829,
+    "payments_enabled": true,
+    "is_club": false,
+    "hours": [
+      { "day_of_week": "monday", "open_time": "07:00", "close_time": "15:00" },
+      { "day_of_week": "tuesday", "open_time": "07:00", "close_time": "15:00" },
+      { "day_of_week": "wednesday", "open_time": "07:00", "close_time": "15:00" },
+      { "day_of_week": "thursday", "open_time": "07:00", "close_time": "15:00" },
+      { "day_of_week": "friday", "open_time": "07:00", "close_time": "15:00" },
+      { "day_of_week": "saturday", "open_time": "08:00", "close_time": "16:00" },
+      { "day_of_week": "sunday", "open_time": "08:00", "close_time": "16:00" }
+    ],
+    "specials": []
+  },
+  {
+    "id": "pearl-room",
+    "name": "Pearl Room",
+    "neighborhood": "DUMBO",
+    "cuisine": ["Seafood"],
+    "price": 4,
+    "lat": 40.7032,
+    "lng": -73.9881,
+    "payments_enabled": true,
+    "is_club": false,
+    "hours": [
+      { "day_of_week": "thursday", "open_time": "17:30", "close_time": "22:30" },
+      { "day_of_week": "friday", "open_time": "17:30", "close_time": "23:00" },
+      { "day_of_week": "saturday", "open_time": "17:30", "close_time": "23:00" }
+    ],
+    "specials": []
+  },
+  {
+    "id": "bedford-grill",
+    "name": "Bedford Grill",
+    "neighborhood": "Williamsburg",
+    "cuisine": ["Grill"],
+    "price": 2,
+    "lat": 40.7175,
+    "lng": -73.9578,
+    "payments_enabled": true,
+    "is_club": false,
+    "hours": [
+      { "day_of_week": "monday", "open_time": "16:00", "close_time": "23:00" },
+      { "day_of_week": "tuesday", "open_time": "16:00", "close_time": "23:00" },
+      { "day_of_week": "wednesday", "open_time": "16:00", "close_time": "23:00" },
+      { "day_of_week": "thursday", "open_time": "16:00", "close_time": "24:00" },
+      { "day_of_week": "friday", "open_time": "16:00", "close_time": "24:00" },
+      { "day_of_week": "saturday", "open_time": "12:00", "close_time": "24:00" },
+      { "day_of_week": "sunday", "open_time": "12:00", "close_time": "22:00" }
+    ],
+    "specials": []
+  },
+  {
+    "id": "harbor-club",
+    "name": "Harbor Club",
+    "neighborhood": "Red Hook",
+    "cuisine": ["Club"],
+    "price": 3,
+    "lat": 40.6789,
+    "lng": -74.011,
+    "payments_enabled": true,
+    "is_club": true,
+    "hours": [
+      { "day_of_week": "friday", "open_time": "20:00", "close_time": "02:00" },
+      { "day_of_week": "saturday", "open_time": "20:00", "close_time": "02:00" }
+    ],
+    "specials": []
+  }
+]
