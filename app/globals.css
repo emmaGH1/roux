@@ -3,6 +3,74 @@
 
 html,
 body {
-  background: var(--paper);
+  background: var(--canvas);
   color: var(--ink);
+  font-family: var(--font-sans);
+}
+
+/* Scroll reveal (components/Reveal.tsx toggles .is-visible once) */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+  transition: opacity 500ms ease-out, transform 500ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Button press feedback — applied via .btn-life on pill buttons */
+.btn-life {
+  transition:
+    background-color 160ms ease,
+    transform 120ms ease,
+    box-shadow 160ms ease;
+}
+.btn-life:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* Skeleton shimmer for loading states */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #eceef1;
+  border-radius: 8px;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.75),
+    transparent
+  );
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+}
+@keyframes skeleton-sweep {
+  to {
+    transform: translateX(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+  }
+}
+
+/* Mapbox overrides */
+.mapboxgl-popup-content {
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
 }

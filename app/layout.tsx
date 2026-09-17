@@ -1,29 +1,31 @@
 import type { Metadata } from "next";
-import { Fraunces, Source_Serif_4, IBM_Plex_Mono } from "next/font/google";
+import { Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const fraunces = Fraunces({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-display",
+  variable: "--font-inter",
   display: "swap",
 });
 
-const sourceSerif4 = Source_Serif_4({
+const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-body",
-  display: "swap",
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-mono",
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Roux",
-  description: "Two kitchens apart. One table.",
+  metadataBase: new URL("https://roux.vercel.app"),
+  title: "Roux — Everyone meets in the middle.",
+  description:
+    "Friends each tap once to share their location. Roux picks one fair Blackbird restaurant near the middle of everyone — with a live perk.",
+  openGraph: {
+    title: "Roux — Everyone meets in the middle.",
+    description:
+      "One tap. Everyone's location. One fair Blackbird restaurant, decided.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -32,11 +34,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${fraunces.variable} ${sourceSerif4.variable} ${ibmPlexMono.variable}`}
-    >
-      <body>{children}</body>
+    <html lang="en" className={`${inter.variable} ${plexMono.variable}`}>
+      <body
+        style={
+          {
+            "--font-sans": "var(--font-inter)",
+            "--font-mono": "var(--font-plex-mono)",
+          } as React.CSSProperties
+        }
+      >
+        {children}
+      </body>
     </html>
   );
 }

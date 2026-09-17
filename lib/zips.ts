@@ -2,15 +2,15 @@ import zips from "../fixtures/nyc-zips.json";
 
 export type ZipRow = { name: string; lat: number; lng: number };
 
-export function lookupZip(raw: string): ZipRow | null {
+export function lookupZip(raw: string): (ZipRow & { zip: string }) | null {
   const zip = raw.replace(/\D/g, "").slice(0, 5);
   if (zip.length === 5 && zip in zips) {
-    return (zips as Record<string, ZipRow>)[zip];
+    return { ...(zips as Record<string, ZipRow>)[zip], zip };
   }
   const lower = raw.trim().toLowerCase();
   for (const [code, row] of Object.entries(zips as Record<string, ZipRow>)) {
     if (row.name.toLowerCase().includes(lower) && lower.length > 3) {
-      return { ...row, name: `${row.name} ${code}` };
+      return { ...row, name: `${row.name} ${code}`, zip: code };
     }
   }
   return null;
