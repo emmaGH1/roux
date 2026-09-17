@@ -2,13 +2,15 @@
 
 ## In (ship this)
 
-1. Marketing landing at `/` (own layout, own copy from COPY.md)
-2. Meet form at `/meet` — two locations (zip or neighborhood preset chips)
-3. Results at `/meet/results` — open Blackbird spots near midpoint
-4. Spot at `/spot/[id]` — one restaurant: hours, cuisine, price, neighborhood, special if any
-5. Demo puppet at `/demo?beat=1..6` — canned states for the video
-6. Honesty banner when data is fixtures
-7. Flynet adapter: fixtures now, live `GET /restaurants` + `/locations` + `/locations/{id}/open_hours` + `/specials` when `USE_FIXTURES=false`
+1. Marketing landing at `/` — light SaaS system (DESIGN.md), CTA to `/start`
+2. Meetup flow (build-revise PRD): `/start` → `/m/[code]` share-location screen → `/m/[code]/result` pick + backups + directions
+3. In-memory code-keyed meetup store (ADR 0003); one-time geolocation snapshots (ADR 0004)
+4. Discovery proxy API routes holding the Flynet key server-side (ADR 0001); cached dataset (ADR 0004)
+5. Special as conversion nudge on the pick only; silent omission on failure (ADR 0005)
+6. Two-ZIP fallback flow at `/meet` + `/meet/results` for the recorded demo (no phones on camera)
+7. Mapbox GL light map on landing + result; static fallback when token missing
+8. Honesty banner when data is fixtures
+9. Demo puppet at `/demo?beat=1..5`
 
 ## Out (ban — deleting if the agent adds them)
 
@@ -28,15 +30,13 @@
 - Footer with fake company columns
 - “Powered by AI” badge
 
-## v1 ranking (exact)
+## v1 ranking (exact, result endpoint)
 
 ```
-open now (America/New_York) first
-then has_fly_special
-then distance_km from midpoint ascending
+prefer is_club: false
+then straight-line km from the fair point ascending
+pick = nearest; backups = next two
 ```
-
-Closed places: hidden on results, not greyed.
 
 ## Completeness bar (hackathon)
 

@@ -8,15 +8,23 @@ If a request conflicts with those files, **obey the files** and say so in one li
 
 ## Product (one sentence)
 
-Two people enter where they are. Roux finds Blackbird restaurants near the geographic middle that are **open now**, ranked by distance, then by whether a $FLY special exists.
+One person starts a meetup and shares the link; everyone else taps once to drop their location. Roux averages those points, ranks every Blackbird room by straight-line distance, and returns **one pick plus two backups** — with a current special as the nudge.
 
 ## Stack (do not substitute)
 
 - Next.js 15 App Router + TypeScript + Tailwind v4
 - `app/` directory only (no `pages/`)
-- MapLibre GL **or** the SVG paper map in `components/PaperMap.tsx` (prefer PaperMap for the demo; MapLibre is optional later)
-- Flynet via `lib/flynet/` only
+- Mapbox GL via `components/MapView.tsx` (dynamically imported, never blocks first paint)
+- Flynet via `lib/discovery.ts` only — server-side, key never reaches the browser
 - Deploy target: Vercel
+
+## Running locally
+
+`next dev` and `next start` must never share a build directory — `next.config.ts`
+sends dev to `.next-dev` and production to `.next`. If they collide, the running
+server serves HTML pointing at chunks that no longer exist and every page dies
+with the generic "Application error: a client-side exception has occurred".
+Never delete or rebuild one dist dir while the other server is running.
 
 ## Files you must not rewrite
 
@@ -36,7 +44,7 @@ Two people enter where they are. Roux finds Blackbird restaurants near the geogr
 ## UI rules
 
 - Follow `DESIGN.md`. The banned list is a hard fail.
-- Marketing chrome (`app/(marketing)/`) and product chrome (`app/(app)/`) are **different layouts**.
+- Marketing chrome (`app/(marketing)/`) and product chrome (`app/(product)/`) are **different layouts**.
 - Every route in `ROUTES.md` is its own page file. No “one long page.”
 - Add `data-demo`, `data-beat`, and stable `id`s listed in `ROUTES.md` for HyperFrames.
 

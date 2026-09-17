@@ -1,11 +1,10 @@
-# Design — “Service Gazette”
+# Design — "Clean Signal"
 
-Print menu meets neighborhood newspaper. Ink on warm paper. Not a tech product. Not a nightclub. Not crypto.
+Light, premium SaaS. White canvas, confident violet, one glowing map. Not a print gazette. Not a crypto dashboard. Not dark-mode tech-bro.
 
-**Memorable anchor (logo off, still recognizable):** a cream paper map of the city with two small ink dots (the people) and a wine-red **R** at the midpoint. Hairline rules. Fraunces headlines that look like a Sunday food section.
+**Memorable anchor (logo off, still recognizable):** a full-width violet gradient band with a floating white app card, and a minimal light map where glowing violet dots converge on one pick with a soft pulsing ring.
 
-**Tone:** editorial. One secondary: utilitarian (forms, numbers).
-Do not add a third (no playful, no luxury-gold, no brutalist-concrete).
+**Tone:** modern product. Confident, plain-spoken. One accent only.
 
 ## Tokens
 
@@ -13,69 +12,69 @@ Live in `design/tokens.css`. Import in `app/globals.css`. **Do not change the he
 
 | Role | Value | Use |
 | --- | --- | --- |
-| Paper | `#F3EBE0` | page background |
-| Paper-dark | `#E7DCCB` | bands, map fill |
-| Ink | `#1C1612` | text |
-| Ink-mute | `#6B5E52` | secondary text |
-| Rule | `#1C1612` at 12–20% | hairlines |
-| Wine | `#7A1F2B` | the only accent (R mark, primary button, “open”) |
-| Wine-deep | `#4E1219` | button pressed |
-| Closed | `#8A8178` | never on results list |
+| Canvas | `#FFFFFF` | page background |
+| Canvas-soft | `#FAFAFA` | alternating section bands |
+| Ink | `#111113` | headings, primary text |
+| Gray | `#6B7280` | secondary text, captions |
+| Border | `#E5E7EB` | hairlines, card borders |
+| Violet | `#7C6CF6` | the only accent: primary buttons, gradient band, marker glow |
+| Violet-deep | `#5B4BD4` | button hover, pressed |
+| Green | `#22C55E` | success/live indicators only |
 
 ## Type
 
-Google fonts (next/font):
+- Display + body: **Inter** (next/font) — headlines, UI, everything
+- Mono: **IBM Plex Mono** — coordinate readouts, map chips only
 
-- Display: **Fraunces** (opsz 144, soft, optical) — headlines, Roux wordmark
-- Body: **Source Serif 4** — landing paragraphs
-- UI / zips / hours: **IBM Plex Mono** — never for headlines
+Scale:
 
-Scale (mobile-first):
-
-- Wordmark: 28px / 1.1
-- H1: clamp(40px, 8vw, 72px) / 1.05, tracking -0.02em
-- H2: 28px
-- Body: 18px / 1.5
-- Meta: 12px mono, uppercase tracking 0.08em for labels only
+- Wordmark: 20px / 600
+- H1: clamp(44px, 6vw, 76px) / 1.05, tracking -0.03em, weight 600
+- H2: clamp(28px, 3.4vw, 40px) / 1.15, tracking -0.02em
+- Body: 18px / 1.6
+- Small: 14px
+- Mono chip: 11–12px, uppercase, tracking 0.08em
 
 ## Layout
 
-- Marketing: max width 1120px, left-heavy type, map on the right on desktop; map **under** headline on mobile (not a 3-column feature grid)
-- App: max width 720px centered, like filling a reservation card
-- Hairline 1px rules instead of cards-with-shadows
-- Results are a **list**, not a card grid. Each row: name / neighborhood / km / OPEN + optional FLY
-- Primary button: wine fill, paper text, 0 radius, full width on mobile, padding 16px 20px
-- Inputs: paper-dark fill, 1px ink/20% border, 0 radius, 48px height
+- Landing: centered column, max width 1120px; hero centered; sections alternate white / canvas-soft
+- Pill navbar: floating, centered, white pill with soft shadow; wordmark left, links + CTA right
+- Product screens (start / meetup / result): max width 480px, mobile-first card layout
+- Cards: white, 16px radius, `0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08)`
+- Primary button: violet fill, white text, pill (999px radius), 48px height, hover violet-deep
+- Secondary button: `#F3F4F6` fill, ink text, pill, 48px height
+- App result card: pick card large with violet ring; backups smaller, gray border
 
-## Motion (sparse)
+## Motion (restrained)
 
-- 180ms ink fade on results rows (stagger 40ms, max 6)
-- Map dots draw in 300ms
-- `prefers-reduced-motion: reduce` → no motion
-- No scroll-hijack, no parallax, no bounce, no gradient text animation
+- Sections fade-up 500ms on scroll into view (once)
+- Map markers: violet dot + pulsing ring (~2s, 2 loops)
+- Gradient band: static; no animation
+- `prefers-reduced-motion: reduce` → everything static-visible
+- No parallax, no scroll-hijack, no 3D theater
 
-## Map
+## Map (Mapbox GL)
 
-Default: `PaperMap` SVG. Brooklyn-ish blob, no Google-blue tiles.
-Two dots = people. Wine **R** = midpoint. Small ticks = result restaurants.
-Do not use Mapbox default streets style.
+- Token from `MAPBOX_TOKEN`, never in client bundle — map style must be a **public custom style** or light standard style; token is public (`pk.`) and safe client-side by design
+- Minimal light treatment: light-gray land, near-white water, no POI clutter
+- Markers: violet dot, white border, soft glow, pulsing ring on the pick
+- Mono LAT/LNG chip overlay top-left of map
+- If token missing: render a neutral static panel, never a crash
 
 ## Banned (instant fail — revert)
 
-- Dark navy/purple/black full-bleed background
-- Blue-purple gradients, aurora blobs, mesh gradients behind type
-- Inter, Roboto, Arial, system-ui as the display face
-- Glassmorphism, `backdrop-filter`, neon glow, inner-glow on buttons
-- 3 identical feature cards with lucide icons
-- Rounded-2xl everywhere, giant shadows
+- Dark navy/black full-page hero
+- Wine/paper gazette remnant (Fraunces, `#7A1F2B`, `#F3EBE0`)
+- Gradients behind body text
+- Glassmorphism, `backdrop-filter` panels
 - Emoji as UI
-- “Reimagine”, “seamless”, “next-gen”, “unlock”, “supercharge”
-- Hero video of people laughing at pasta (unless we shoot it)
-- Floating 3D, isometric boards, GSAP scroll theater
-- shadcn default zinc theme
+- "Reimagine", "seamless", "next-gen", "unlock", "supercharge"
+- Star ratings, reviews
+- More than one accent color
+- Motion libraries (framer-motion, GSAP)
 
 ## Differentiation
 
-Instead of a SaaS dashboard: a **printed service card**.
-Instead of a Google map: an **ink map**.
-Instead of star ratings: **open + km + FLY special**.
+Instead of a group-chat argument: **one decisive pick**.
+Instead of a generic map: **glowing convergence** on the fair middle.
+Instead of ratings: **open + closest + a live perk**.

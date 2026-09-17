@@ -1,13 +1,14 @@
 # Honesty table
 
-| Surface | Fixture (`USE_FIXTURES=true`) | Live Flynet |
+| Surface | Fixture (`USE_FIXTURES=true` or no key) | Live Flynet |
 | --- | --- | --- |
-| ZIP → lat/lng | `fixtures/nyc-zips.json` | same file (NYC only) |
-| Restaurants | `fixtures/restaurants.json` | `GET /locations` + hours + specials |
-| Open now | `lib/openNow.ts` on fixture hours | same function on API hours |
-| Midpoint | `lib/geo.ts` | `lib/geo.ts` |
+| Restaurant locations | `fixtures/restaurants.json` | `GET /locations` + `GET /restaurants` (cached in memory) |
+| Names / cuisine / price | fixture rows | cached restaurants map |
+| Fair point | `lib/geo.ts` centroid | same |
+| Ranking | haversine on fixture coords | same on live coords |
+| Specials | fixture specials | `GET /specials?restaurant={id}` (pick only; failure = omitted silently) |
 | Ratings | none | none |
-| Menus / book table | none | none |
-| $FLY pay | none (badge only if special exists) | none in v1 |
+| Payments / booking | none | none |
+| Map tiles | Mapbox (public token) | same |
 
-Banner copy: COPY.md
+Banner copy: COPY.md. Specials 403/401 → treat as "no special", never a blocker (ADR 0005).
