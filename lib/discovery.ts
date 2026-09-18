@@ -11,6 +11,7 @@
 import restaurantsJson from "../fixtures/restaurants.json";
 import type { OpenHour, RouxSpot } from "./types";
 import { isOpenAt } from "./openNow";
+import { redis, redisEnabled } from "./redis";
 
 export type DiscoveryLocation = {
   location_id: string;
@@ -70,8 +71,12 @@ const DEFAULT_429_WAIT_MS = 1100;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** Bump when the mapped DiscoveryLocation shape changes. */
+const DATASET_CACHE_KEY = "roux:dataset:v1";
+
 const globalForCache = globalThis as unknown as {
   __rouxDataset?: Dataset;
+  __rouxDatasetLoading?: Promise<Dataset>;
   __rouxHours?: Map<string, { hours: OpenHour[] | null; at: number }>;
 };
 
@@ -211,17 +216,39 @@ function fixtureDataset(reason: DatasetReason): Dataset {
 export async function getDataset(): Promise<Dataset> {
   if (globalForCache.__rouxDataset) return globalForCache.__rouxDataset;
 
+  /* One load at a time per instance — N concurrent requests must not fire N
+     full Flynet crawls (or N Redis reads) on a cold start. */
+  globalForCache.__rouxDatasetLoading ??= loadDataset().finally(() => {
+    delete globalForCache.__rouxDatasetLoading;
+  });
+  return globalForCache.__rouxDatasetLoading;
+}
+
+async function loadDataset(): Promise<Dataset> {
   const key = process.env.FLYNET_API_KEY;
   if (!key) {
-    globalForCache.__rouxDataset = fixtureDataset("no-key");
-    return globalForCache.__rouxDataset;
+    return fixtureDataset("no-key");
   }
   if (process.env.USE_FIXTURES === "true") {
-    globalForCache.__rouxDataset = fixtureDataset("fixtures-forced");
-    return globalForCache.__rouxDataset;
+    return fixtureDataset("fixtures-forced");
   }
 
   const base = baseUrl(key);
+
+  /* Redis first: a fresh serverless instance gets the whole dataset in one
+     request instead of re-crawling Flynet (67 pages) — no burst, no 429s. */
+  if (redisEnabled) {
+    try {
+      const raw = await redis<string>(["GET", DATASET_CACHE_KEY]);
+      const parsed = raw ? (JSON.parse(raw) as Dataset) : null;
+      if (parsed?.source === "flynet" && parsed.locations?.length) {
+        globalForCache.__rouxDataset = parsed;
+        return parsed;
+      }
+    } catch (err) {
+      console.warn("[discovery] dataset cache read failed, crawling Flynet:", err);
+    }
+  }
 
   try {
     const locations = await listAll<any>(key, base, "/locations", "locations");
@@ -270,11 +297,23 @@ export async function getDataset(): Promise<Dataset> {
       });
     }
 
-    globalForCache.__rouxDataset = {
+    const dataset: Dataset = {
       locations: mapped,
       source: "flynet",
       reason: "ok",
     };
+
+    /* Share the win: every other instance (this one included, after a
+       redeploy or a Vercel recycle) loads in one Redis GET, not 67 pages. */
+    if (redisEnabled) {
+      try {
+        await redis(["SET", DATASET_CACHE_KEY, JSON.stringify(dataset)]);
+      } catch (err) {
+        console.warn("[discovery] dataset cache write failed (non-fatal):", err);
+      }
+    }
+
+    globalForCache.__rouxDataset = dataset;
   } catch (err) {
     /* A 429 that survived every retry is a rate-limit story, not a credential
        story — the honesty chip must not blame the key. */
@@ -285,12 +324,12 @@ export async function getDataset(): Promise<Dataset> {
       `[discovery] Flynet load failed (${base}), using fixtures:`,
       err instanceof FlynetError ? err.message : err
     );
-    globalForCache.__rouxDataset = fixtureDataset(
-      rateLimited ? "rate-limited" : "key-rejected"
-    );
+    /* Deliberately NOT cached in process memory: the next request retries,
+       and either finds Redis warm or catches Flynet recovered. */
+    return fixtureDataset(rateLimited ? "rate-limited" : "key-rejected");
   }
 
-  return globalForCache.__rouxDataset;
+  return globalForCache.__rouxDataset!;
 }
 
 /**

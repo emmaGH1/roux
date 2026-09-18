@@ -41,8 +41,18 @@ export default function MeetupPage({
 
   useEffect(() => {
     refreshCount();
-    const t = setInterval(refreshCount, 4000);
-    return () => clearInterval(t);
+    /* Near-real-time: a 1.5s poll is one cheap Redis GET, and coming back to
+       the tab (phone unlock, app switch) refreshes instantly instead of
+       waiting out the interval. */
+    const t = setInterval(refreshCount, 1500);
+    const wake = () => document.visibilityState === "visible" && refreshCount();
+    document.addEventListener("visibilitychange", wake);
+    window.addEventListener("focus", wake);
+    return () => {
+      clearInterval(t);
+      document.removeEventListener("visibilitychange", wake);
+      window.removeEventListener("focus", wake);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code]);
 

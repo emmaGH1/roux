@@ -11,6 +11,9 @@ import { getDatasetStatus } from "@/lib/discovery";
  */
 export const dynamic = "force-dynamic";
 
+/** Cold-start dataset loads (or a Redis miss → full Flynet crawl) need real time. */
+export const maxDuration = 60;
+
 export async function GET() {
   const { source, reason } = await getDatasetStatus();
   return NextResponse.json(

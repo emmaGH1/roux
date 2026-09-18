@@ -8,6 +8,9 @@ import { fairPoint, km, rankLocations, directionsUrl } from "@/lib/result";
  * Centroid of all snapshots → haversine rank → pick + 2 backups.
  * Special fetched only for the pick; failure = omitted silently (ADR 0005).
  */
+/** The pick path reads the dataset; a cold instance may need to load it. */
+export const maxDuration = 60;
+
 export async function POST(
   _req: Request,
   { params }: { params: Promise<{ code: string }> }

@@ -10,6 +10,8 @@
  * are async and two friends tapping at once must both land.
  */
 
+import { redis, redisEnabled } from "./redis";
+
 export type Meetup = {
   code: string;
   locations: Array<{ lat: number; lng: number }>;
@@ -20,9 +22,6 @@ const ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789"; // no I/L/O/0/1
 /** Meetups are one evening; auto-expire after a day. */
 const TTL_SECONDS = 24 * 60 * 60;
 
-const REST_URL = process.env.UPSTASH_REDIS_REST_URL;
-const REST_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-const redisEnabled = Boolean(REST_URL && REST_TOKEN);
 const keyOf = (code: string) => `roux:meetup:${code}`;
 
 /* ── In-memory fallback (dev only) ── */
@@ -31,7 +30,7 @@ const globalForStore = globalThis as unknown as { __rouxMeetups?: Map<string, Me
 const store: Map<string, Meetup> =
   globalForStore.__rouxMeetups ?? (globalForStore.__rouxMeetups = new Map());
 
-/* ── Redis plumbing ── */
+/* ── Store API (same shape the routes already consume) ── */
 
 let chain: Promise<unknown> = Promise.resolve();
 /** Serialize async writes so concurrent taps can't read-modify-write over each other. */
@@ -40,24 +39,6 @@ function serialized<T>(fn: () => Promise<T>): Promise<T> {
   chain = next.catch(() => {});
   return next;
 }
-
-async function redis<T>(command: (string | number)[]): Promise<T | null> {
-  const res = await fetch(REST_URL!, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${REST_TOKEN}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(command),
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error(`upstash ${res.status}`);
-  const json = (await res.json()) as { result: T | null; error?: string };
-  if (json.error) throw new Error(`upstash: ${json.error}`);
-  return json.result;
-}
-
-/* ── Store API (same shape the routes already consume) ── */
 
 function generateCode(): string {
   let code = "";
