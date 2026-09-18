@@ -47,4 +47,10 @@ Each URL is a separate `page.tsx`. Do not combine.
 
 ## 16:9 capture
 
-Hero complete at 1280×720 without scrolling. Result screen: pick card + map visible without scrolling at 1280×720.
+Measured, not aspirational:
+
+- `/` at 1280×720 — the eyebrow, headline, subtext, both CTAs and the microcopy all fit above
+the fold. The app frame deliberately bleeds past it, which is what invites the scroll.
+- `/m/[code]/result` at 1280×720 — map, pick card and the directions button are visible without
+scrolling; backups sit just below.
+- `/start` at 375px — single column, headline at the 40px clamp floor, no horizontal overflow.
