@@ -12,7 +12,7 @@ export default async function ResultPage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  const meetup = getMeetup(code);
+  const meetup = await getMeetup(code);
   if (!meetup) notFound();
   if (meetup.locations.length < 2) {
     redirect(`/m/${code}`);

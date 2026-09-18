@@ -24,7 +24,7 @@ export default async function DemoPage(props: DemoPageProps) {
   const people = searchParams.people ? parseInt(searchParams.people, 10) : 2;
   const points =
     people > 2 ? [...DEMO_POINTS, ...EXTRA_POINTS].slice(0, Math.min(4, people)) : DEMO_POINTS;
-  ensureDemoMeetup(DEMO_CODE, points);
+  await ensureDemoMeetup(DEMO_CODE, points);
 
   const targets: Record<number, string> = {
     1: "/",

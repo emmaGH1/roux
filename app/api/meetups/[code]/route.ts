@@ -6,7 +6,7 @@ export async function GET(
   { params }: { params: Promise<{ code: string }> }
 ) {
   const { code } = await params;
-  const meetup = getMeetup(code);
+  const meetup = await getMeetup(code);
   if (!meetup) {
     return NextResponse.json({ error: "Meetup not found" }, { status: 404 });
   }

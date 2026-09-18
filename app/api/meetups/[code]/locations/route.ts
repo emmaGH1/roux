@@ -14,7 +14,7 @@ export async function POST(
     return NextResponse.json({ error: "lat and lng required" }, { status: 400 });
   }
 
-  const result = addLocation(code, lat, lng);
+  const result = await addLocation(code, lat, lng);
   if (!result) {
     return NextResponse.json({ error: "Meetup not found" }, { status: 404 });
   }
