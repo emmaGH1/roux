@@ -3,12 +3,17 @@ import { Bezel, Eyebrow, Pill } from "@/components/ui";
 import { DataBadge } from "@/components/DataBadge";
 import type { DatasetReason, DatasetSource } from "@/lib/discovery";
 
+/**
+ * Partner lockups: a monogram tile, the name, and what they do. Deliberately
+ * typographic rather than third-party logo files — we don't fabricate a
+ * company's mark, and nothing hot-linked can break mid-recording.
+ */
 const PARTNERS = [
-  { name: "Flynet", note: "Discovery API", href: "https://docs.flynet.org" },
-  { name: "Blackbird", note: "restaurant network", href: "https://www.blackbird.xyz" },
-  { name: "Mapbox", note: "maps", href: "https://www.mapbox.com" },
-  { name: "Next.js", note: "framework", href: "https://nextjs.org" },
-  { name: "Vercel", note: "hosting", href: "https://vercel.com" },
+  { name: "Flynet", note: "Discovery API", href: "https://docs.flynet.org", mark: "F" },
+  { name: "Blackbird", note: "restaurant network", href: "https://www.blackbird.xyz", mark: "B" },
+  { name: "Mapbox", note: "maps", href: "https://www.mapbox.com", mark: "M" },
+  { name: "Next.js", note: "framework", href: "https://nextjs.org", mark: "N" },
+  { name: "Vercel", note: "hosting", href: "https://vercel.com", mark: "V" },
 ];
 
 const PRODUCT_LINKS = [
@@ -83,22 +88,49 @@ export function SiteFooter({
 
         {/* ── Sponsors & partners ── */}
         <div className="mt-14 border-t border-[var(--hairline)] pt-10">
-          <Eyebrow>PARTNERS &amp; SPONSORS</Eyebrow>
-          <div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Eyebrow>PARTNERS &amp; SPONSORS</Eyebrow>
+            <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--gray-light)]">
+              Presented at Runtime Agent Week 2026
+            </span>
+          </div>
+
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
             {PARTNERS.map((p) => (
               <a
                 key={p.name}
                 href={p.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group block"
+                className="group flex items-center gap-3 rounded-[18px] border border-[var(--hairline)] bg-white p-3.5 transition-colors hover:border-[var(--ink)]/15"
               >
-                <span className="block text-[17px] font-semibold tracking-[-0.02em] text-[var(--ink)] transition-colors group-hover:text-[var(--violet)]">
-                  {p.name}
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[var(--canvas-soft)] text-[15px] font-semibold text-[var(--ink)] transition-colors group-hover:bg-[var(--violet-soft)] group-hover:text-[var(--violet-deep)]">
+                  {p.mark}
                 </span>
-                <span className="mt-1 block font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.14em] text-[var(--gray)]">
-                  {p.note}
+                <span className="min-w-0">
+                  <span className="block truncate text-[15px] font-semibold tracking-[-0.02em]">
+                    {p.name}
+                  </span>
+                  <span className="block truncate font-[family-name:var(--font-mono)] text-[9px] uppercase tracking-[0.14em] text-[var(--gray)]">
+                    {p.note}
+                  </span>
                 </span>
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  aria-hidden
+                  className="ml-auto shrink-0 text-[var(--gray-light)] transition-colors group-hover:text-[var(--violet)]"
+                >
+                  <path
+                    d="M5 11l6-6M6.5 5H11v4.5"
+                    stroke="currentColor"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
               </a>
             ))}
           </div>
@@ -110,12 +142,12 @@ export function SiteFooter({
             <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--gray)]">
               PRODUCT
             </span>
-            <ul className="mt-5 space-y-3">
+            <ul className="mt-4 space-y-0.5">
               {PRODUCT_LINKS.map((l) => (
                 <li key={l.label}>
                   <Link
                     href={l.href}
-                    className="text-[15px] text-[var(--ink-soft)] transition-colors hover:text-[var(--violet)]"
+                    className="inline-flex min-h-[36px] items-center text-[15px] text-[var(--ink-soft)] transition-colors hover:text-[var(--violet)]"
                   >
                     {l.label}
                   </Link>
@@ -128,14 +160,14 @@ export function SiteFooter({
             <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--gray)]">
               UNDER THE HOOD
             </span>
-            <ul className="mt-5 space-y-3">
+            <ul className="mt-4 space-y-0.5">
               {UNDER_LINKS.map((l) => (
                 <li key={l.label}>
                   <a
                     href={l.href}
                     target={l.external ? "_blank" : undefined}
                     rel={l.external ? "noopener noreferrer" : undefined}
-                    className="text-[15px] text-[var(--ink-soft)] transition-colors hover:text-[var(--violet)]"
+                    className="inline-flex min-h-[36px] items-center text-[15px] text-[var(--ink-soft)] transition-colors hover:text-[var(--violet)]"
                   >
                     {l.label}
                   </a>

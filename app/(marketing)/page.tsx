@@ -116,7 +116,7 @@ export default async function MarketingPage() {
             <Eyebrow>FOR FRIENDS WHO CAN&rsquo;T DECIDE</Eyebrow>
           </Reveal>
           <Reveal delayMs={70}>
-            <h1 className="mt-6 text-[clamp(46px,7vw,92px)] font-semibold leading-[0.98] tracking-[-0.038em]">
+            <h1 className="mt-6 text-[clamp(40px,7vw,92px)] font-semibold leading-[0.98] tracking-[-0.038em]">
               Everyone meets
               <br />
               in the{" "}
@@ -380,7 +380,8 @@ export default async function MarketingPage() {
               ))}
             </ul>
 
-            <div className="mt-9 grid grid-cols-3 gap-6">
+            {/* Two columns on a phone: three mono labels don't fit at 375px. */}
+            <div className="mt-9 grid grid-cols-2 gap-6 sm:grid-cols-3">
               {[
                 { n: <CountUp value={dataset.locations.length} />, label: "rooms considered" },
                 { n: <CountUp value={1} />, label: "fair point" },
