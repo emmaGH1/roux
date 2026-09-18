@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Bezel, Eyebrow } from "@/components/ui";
 
@@ -55,11 +56,29 @@ function GroupGlyph() {
 }
 
 export default function StartPage() {
+  const router = useRouter();
   const [code, setCode] = useState<string | null>(null);
   const [link, setLink] = useState<string>("");
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [join, setJoin] = useState("");
+  const [joining, setJoining] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
+
+  async function handleJoin(e: React.FormEvent) {
+    e.preventDefault();
+    /* Accept the bare code — or a pasted full link, which we strip. */
+    const raw = join.trim().toUpperCase();
+    const m = raw.match(/([A-Z2-9]{5})(?!.*[A-Z2-9])/);
+    if (!m) {
+      setJoinError("That doesn’t look like a meetup code — 5 characters, like 2V78S.");
+      return;
+    }
+    setJoining(true);
+    setJoinError(null);
+    router.push(`/m/${m[1]}`);
+  }
 
   async function handleCreate() {
     setCreating(true);
@@ -240,6 +259,38 @@ export default function StartPage() {
       </Bezel>
 
       {error && <p className="mt-4 text-center text-[13px] text-red-500">{error}</p>}
+
+      {/* Join by code — the invite link carries the URL, but a friend who
+         only got the 5 characters needs a door too. */}
+      <form onSubmit={handleJoin} className="mt-9">
+        <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--gray)]">
+          HAVE A CODE?
+        </span>
+        <div
+          id="join-code"
+          className="mt-3 flex items-center gap-2 rounded-full border border-[var(--hairline)] bg-[var(--canvas-soft)] py-1.5 pl-5 pr-1.5 focus-within:border-[var(--violet)]"
+        >
+          <input
+            value={join}
+            onChange={(e) => setJoin(e.target.value)}
+            placeholder="A5C2K"
+            aria-label="Meetup code"
+            autoCapitalize="characters"
+            autoCorrect="off"
+            spellCheck={false}
+            maxLength={40}
+            className="h-10 min-w-0 flex-1 bg-transparent font-[family-name:var(--font-mono)] text-[16px] uppercase tracking-[0.22em] text-[var(--ink)] placeholder:text-[var(--gray-light)] focus:outline-none"
+          />
+          <button
+            type="submit"
+            disabled={joining || join.trim().length === 0}
+            className="btn-life shrink-0 rounded-full bg-[var(--ink)] px-5 py-2.5 text-[13px] font-medium text-white hover:bg-black disabled:opacity-35"
+          >
+            {joining ? "Joining…" : "Join"}
+          </button>
+        </div>
+        {joinError && <p className="mt-2 pl-5 text-[13px] text-red-500">{joinError}</p>}
+      </form>
 
       <div className="mt-10">
         <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.18em] text-[var(--gray)]">
