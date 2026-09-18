@@ -1,10 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, IBM_Plex_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Instrument_Serif, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-jakarta",
+  display: "swap",
+});
+
+const instrument = Instrument_Serif({
+  subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
+  variable: "--font-instrument",
   display: "swap",
 });
 
@@ -19,7 +27,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://roux.vercel.app"),
   title: "Roux — Everyone meets in the middle.",
   description:
-    "Friends each tap once to share their location. Roux picks one fair Blackbird restaurant near the middle of everyone — with a live perk.",
+    "Friends each tap once to share their location. Roux picks one fair Blackbird restaurant near the middle of everyone — with a live perk to get them out the door.",
   openGraph: {
     title: "Roux — Everyone meets in the middle.",
     description:
@@ -34,11 +42,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${plexMono.variable}`}>
+    <html
+      lang="en"
+      className={`${jakarta.variable} ${instrument.variable} ${plexMono.variable}`}
+    >
       <body
         style={
           {
-            "--font-sans": "var(--font-inter)",
+            "--font-sans": "var(--font-jakarta)",
+            "--font-serif": "var(--font-instrument)",
             "--font-mono": "var(--font-plex-mono)",
           } as React.CSSProperties
         }

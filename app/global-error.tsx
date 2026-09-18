@@ -22,7 +22,7 @@ export default function GlobalError({
           justifyContent: "center",
           background: "#ffffff",
           color: "#111113",
-          fontFamily: "Inter, ui-sans-serif, system-ui, sans-serif",
+          fontFamily: "ui-sans-serif, system-ui, -apple-system, sans-serif",
           padding: "0 24px",
         }}
       >

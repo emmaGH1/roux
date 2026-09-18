@@ -1,80 +1,130 @@
-# Design — "Clean Signal"
+# Design — "Soft Signal"
 
-Light, premium SaaS. White canvas, confident violet, one glowing map. Not a print gazette. Not a crypto dashboard. Not dark-mode tech-bro.
+Light premium editorial. White canvas, one violet accent, huge grotesk headlines with a
+serif-italic accent word, hairline structure, machined nested cards, softly diffused depth,
+macro whitespace. Not a dark tech dashboard. Not a print gazette. Not a crypto landing.
 
-**Memorable anchor (logo off, still recognizable):** a full-width violet gradient band with a floating white app card, and a minimal light map where glowing violet dots converge on one pick with a soft pulsing ring.
+**Vibe / texture archetype:** Soft Structuralism (silver-white, massive Grotesk, floating
+components, unbelievably soft ambient shadows) with a whisper of editorial grain.
+**Layout archetype:** Editorial Split hero, then Asymmetrical Bento for how-it-works.
 
-**Tone:** modern product. Confident, plain-spoken. One accent only.
+**Memorable anchor (logo off, still recognizable):** a full-bleed violet gradient band with a
+floating white result card, a serif-italic word inside an otherwise grotesk headline, and a
+minimal light map where dark person dots and a glowing violet pick converge on one fair point.
 
 ## Tokens
 
-Live in `design/tokens.css`. Import in `app/globals.css`. **Do not change the hex values.**
+Live in `design/tokens.css`. Import in `app/globals.css`. Values were re-based for this
+direction — do not drift them by hand.
 
 | Role | Value | Use |
 | --- | --- | --- |
 | Canvas | `#FFFFFF` | page background |
-| Canvas-soft | `#FAFAFA` | alternating section bands |
-| Ink | `#111113` | headings, primary text |
-| Gray | `#6B7280` | secondary text, captions |
-| Border | `#E5E7EB` | hairlines, card borders |
-| Violet | `#7C6CF6` | the only accent: primary buttons, gradient band, marker glow |
-| Violet-deep | `#5B4BD4` | button hover, pressed |
-| Green | `#22C55E` | success/live indicators only |
+| Canvas-soft | `#F7F7FA` | alternating bands, inset panels |
+| Ink | `#0C0C10` | headings, primary text |
+| Ink-soft | `#3B3B45` | secondary paragraphs |
+| Gray | `#6E6E7A` | captions, meta |
+| Gray-light | `#9A9AA6` | micro labels |
+| Hairline | `rgba(12,12,16,.07)` | every border in the design |
+| Violet | `#7C6CF6` | the only accent: CTAs, pick, gradient band |
+| Violet-deep | `#5B4BD4` | button hover |
+| Violet-soft | `#F0EDFE` | perk chip, method chip |
+| Green | `#22C55E` | live / open indicators only |
+
+Depth: `--shadow-xs` … `--shadow-lg` are stacked, wide, low-opacity. Never a dark drop shadow,
+never `shadow-md`'s default harshness. `--shadow-violet` is the glow under primary CTAs.
 
 ## Type
 
-- Display + body: **Inter** (next/font) — headlines, UI, everything
-- Mono: **IBM Plex Mono** — coordinate readouts, map chips only
+- Display + body + UI: **Plus Jakarta Sans** (`--font-sans`)
+- Editorial accent: **Instrument Serif, italic** (`--font-serif`) — for one word per screen, max
+- Data + chips: **IBM Plex Mono** (`--font-mono`)
 
 Scale:
 
-- Wordmark: 20px / 600
-- H1: clamp(44px, 6vw, 76px) / 1.05, tracking -0.03em, weight 600
-- H2: clamp(28px, 3.4vw, 40px) / 1.15, tracking -0.02em
-- Body: 18px / 1.6
-- Small: 14px
-- Mono chip: 11–12px, uppercase, tracking 0.08em
+- Wordmark: 19–20px / 600, tracking -0.03em
+- H1 hero: clamp(46px, 7vw, 92px) / 0.98, tracking -0.038em, weight 600
+- H2: clamp(30px, 3.6vw, 46px) / 1.06, tracking -0.03em
+- Card title: 20–30px / 600
+- Body: 16–18px / 1.65
+- Small: 13–15px
+- Eyebrow / mono chip: 10–11px, uppercase, tracking 0.14–0.2em
 
 ## Layout
 
-- Landing: centered column, max width 1120px; hero centered; sections alternate white / canvas-soft
-- Pill navbar: floating, centered, white pill with soft shadow; wordmark left, links + CTA right
-- Product screens (start / meetup / result): max width 480px, mobile-first card layout
-- Cards: white, 16px radius, `0 1px 2px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.08)`
-- Primary button: violet fill, white text, pill (999px radius), 48px height, hover violet-deep
-- Secondary button: `#F3F4F6` fill, ink text, pill, 48px height
-- App result card: pick card large with violet ring; backups smaller, gray border
+- Page max width **1200px** (`--page-max`), gutter 24px
+- Landing sections: `py-28`; hero `pt-16`
+- Product screens (start / meetup / result / fallback): single column, max **520px**
+- Every premium surface is a **double bezel** (`components/ui.tsx` → `Bezel`): a 7px outer tray
+  with a hairline border and a gradient fill, holding a core with a smaller concentric radius
+- Cards lift 3px on hover (`.lift`), never scale past 1.0
+- Mobile: every asymmetric grid collapses to one column below `md`; nothing overlaps on touch
 
-## Motion (restrained)
+## Buttons
 
-- Sections fade-up 500ms on scroll into view (once)
-- Map markers: violet dot + pulsing ring (~2s, 2 loops)
-- Gradient band: static; no animation
-- `prefers-reduced-motion: reduce` → everything static-visible
-- No parallax, no scroll-hijack, no 3D theater
+- Fully rounded pills, generous padding
+- Any trailing arrow lives in its own circle nested inside the button (`components/ui.tsx` → `Pill`)
+- Tones: `violet` (primary), `ink` (secondary dark), `ghost` (light on white), `white` (on dark/gradient)
+- Press: `.btn-life` scales to 0.965
 
-## Map (Mapbox GL)
+## Landing sections (in order)
 
-- Token from `MAPBOX_TOKEN`, never in client bundle — map style must be a **public custom style** or light standard style; token is public (`pk.`) and safe client-side by design
-- Minimal light treatment: light-gray land, near-white water, no POI clutter
-- Markers: violet dot, white border, soft glow, pulsing ring on the pick
-- Mono LAT/LNG chip overlay top-left of map
-- If token missing: render a neutral static panel, never a crash
+1. Floating pill navbar — dark, centered, sticky at `top-4` (never glued edge-to-edge)
+2. Hero — eyebrow, H1 with the serif-italic accent, subtext, two pills, microcopy, then the
+   **live app frame**: a bezel holding the real map with a live-count pill and a floating pick card
+3. Ticker — hairline-ruled mono facts, slow marquee
+4. Gradient band + floating result card (`data-money-shot`) — the money shot
+5. The fair middle — map in a bezel beside copy, checklist, and three counted metrics
+6. How it works — asymmetrical bento (5 / 7 / 12 columns)
+7. Built on Flynet — PNL copy beside the four API route chips
+8. Honesty — "What Roux won't do", three hairline cards
+9. Footer (`components/SiteFooter.tsx`) — closing CTA panel, **partners & sponsors**, link
+   columns, bottom bar
+
+## Footer
+
+- Closing CTA: violet gradient bezel, grain, glow orb, white H2, primary pill + ghost link
+- Partners & sponsors row: name (17px semibold) + mono note, each linking out
+- Three link columns: Product / Under the hood / Honesty
+- Bottom bar: wordmark + one-liner, then `Built on Flynet`, `Runtime Agent Week 2026`, `© 2026`
+
+## Motion (CSS only)
+
+- Sections fade-up 700ms on scroll into view (once)
+- Floating glow orbs drift on an 11s loop; buttons interpolate with `--ease-out` / `--ease-soft`
+- Map markers: dark person dots, violet pick lands last with a bounce + pulsing ring; the result
+  screen runs the deciding sequence (status ticks, radar sweep, pick drop, card slide-up)
+- `prefers-reduced-motion: reduce` → everything static-visible, no marquee, no radar
+- No motion libraries. No scroll-hijack. No 3D theater.
+
+## Map (Mapbox GL) — three tiers
+
+1. **WebGL map** — light treatment, no POI clutter, dark/violet markers, mono LAT/LNG chip
+2. **Static Images API** (`mapbox/light-v11`) — a real map image when WebGL is unavailable;
+   labeled `Static view · WebGL off`
+3. **Drawn diagram** — real coordinates plotted as SVG when no tiles are reachable;
+   labeled `Static view · tiles unavailable`
+
+Token comes from `NEXT_PUBLIC_MAPBOX_TOKEN` (public `pk.` by design). A missing token, a slow
+style load, or a thrown error must always downgrade a tier — never render an empty rectangle,
+never crash the page.
 
 ## Banned (instant fail — revert)
 
-- Dark navy/black full-page hero
-- Wine/paper gazette remnant (Fraunces, `#7A1F2B`, `#F3EBE0`)
-- Gradients behind body text
+- Inter, Roboto, Arial, Open Sans, Helvetica
+- Generic 1px gray borders and harsh dark drop shadows
+- Full-bleed sticky navbar glued to the viewport top
 - Glassmorphism, `backdrop-filter` panels
-- Emoji as UI
+- Dark navy/black full-page hero; wine/paper gazette remnant
+- Emoji as UI; thick-stroked icon sets
+- Gradients behind body text; more than one accent color
 - "Reimagine", "seamless", "next-gen", "unlock", "supercharge"
-- Star ratings, reviews
-- More than one accent color
+- Star ratings, reviews, fake testimonials
 - Motion libraries (framer-motion, GSAP)
 
 ## Differentiation
 
-Instead of a group-chat argument: **one decisive pick**.
+Instead of a group-chat argument: **one decisive pick.**
 Instead of a generic map: **glowing convergence** on the fair middle.
-Instead of ratings: **open + closest + a live perk**.
+Instead of ratings: **open + closest + a live perk.**
+Instead of a marketing-only page: **the real ranking engine** rendering the sample pick.

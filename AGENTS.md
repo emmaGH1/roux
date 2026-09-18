@@ -28,10 +28,11 @@ Never delete or rebuild one dist dir while the other server is running.
 
 ## Files you must not rewrite
 
-- `design/tokens.css` — import globally, do not change values
+- `design/tokens.css` — import globally. Values were re-based for the v2 design; change them only together with a `DESIGN.md` edit, never ad hoc
 - `COPY.md` — render these strings; do not invent marketing copy
 - `fixtures/*` — shape stays; you may add rows, not rename fields
-- `lib/geo.ts` — use as-is for midpoint + distance
+- `lib/result.ts` — use as-is for the fair point + distance ranking
+- `components/ui.tsx` — the shared primitives (`Bezel`, `Eyebrow`, `Pill`, `Check`). Reuse them; do not hand-roll a second button or card style
 
 ## Hallucination rules
 
@@ -43,7 +44,9 @@ Never delete or rebuild one dist dir while the other server is running.
 
 ## UI rules
 
-- Follow `DESIGN.md`. The banned list is a hard fail.
+- Follow `DESIGN.md`. The banned list is a hard fail (it now includes Inter — the type system is Plus Jakarta Sans + Instrument Serif accent + IBM Plex Mono).
+- Every premium surface is a double bezel (`Bezel`), never a card floating flat on the canvas.
+- The map must never render as an empty rectangle: it degrades WebGL → static image → drawn diagram, each labeled honestly.
 - Marketing chrome (`app/(marketing)/`) and product chrome (`app/(product)/`) are **different layouts**.
 - Every route in `ROUTES.md` is its own page file. No “one long page.”
 - Add `data-demo`, `data-beat`, and stable `id`s listed in `ROUTES.md` for HyperFrames.

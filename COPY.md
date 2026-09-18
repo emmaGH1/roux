@@ -95,22 +95,119 @@ indecision into a group visit at a real Blackbird restaurant — and
 surfaces a current special to turn intent into covers and spend.
 ```
 
+### Hero app frame
+
+Live pill: `3 of us are in`
+Card kicker: `MEET-HERE PICK`
+Caption under frame: `Three shares in · one fair point out`
+
+### Ticker
+
+```
+No accounts
+No app install
+Works on any phone
+Fair-point centroid
+Straight-line distance ranking
+One link, one pick
+Flynet Discovery
+```
+
+### Deciding second (above the gradient card)
+
+Kicker: `THE DECIDING SECOND`
+H2: `The moment the arguing stops.`
+
+### Fair middle metrics
+
+```
+{rooms} rooms considered
+1 fair point
+{backups} backups ready
+```
+
+### What Roux won't do
+
+Eyebrow: `WHAT ROUX WON'T DO`
+H2: `Honest by default.`
+
+```
+No star ratings.
+Roux ranks by distance from the fair point. Nothing else is invented, averaged, or scored.
+
+No fake reservations.
+Flynet has no booking action at launch, so Roux never pretends to hold a table.
+
+No accounts, no history.
+Meetups live in server memory and disappear when the process restarts. Nothing to log into.
+```
+
+CTA band: `Ready to end the thread? A meetup takes one tap to start and one link to fill.`
+
+### Built on Flynet panel
+
+Chip label: `BUILT ON FLYNET`
+Chip body: `The browser never talks to Flynet directly. It talks to these four routes.`
+Chips: `POST /api/meetups` · `GET /api/meetups/{code}` ·
+`POST /api/meetups/{code}/locations` · `POST /api/meetups/{code}/result`
+Honesty chips: `{n} locations cached in server memory` · `API key stays server-side` ·
+`Specials fetched only for the pick`
+
 ### Footer
+
+Closing kicker: `READY WHEN THEY ARE`
+Closing H2: `Stop the group chat.`
+Closing body: `One link. Everyone taps once. Roux calls one fair Blackbird restaurant and
+hands out directions.`
+Primary: `Start a meetup` · Secondary: `See how it decides`
+
+Partners & sponsors (name + mono note, each links out):
+
+```
+Flynet — Discovery API
+Blackbird — restaurant network
+Mapbox — maps
+Next.js — framework
+Vercel — hosting
+```
+
+Columns: `PRODUCT` · `UNDER THE HOOD` · `HONESTY`
+Honesty column: `Sample data. Live Flynet when keys are in. Meetups live in server memory and
+vanish on restart.`
+Bottom bar:
 
 ```
 Roux — Everyone meets in the middle.
-Built on Flynet · Runtime Agent Week 2026
+Built on Flynet · Runtime Agent Week 2026 · © 2026
 ```
 
 ## Start `/start`
 
+Eyebrow: `NEW MEETUP`
 Title: `Start a meetup`
 Body: `One button. You'll get a link to share.`
 Button: `Start a meetup`
-After-create helper: `Share this link` (with copy button, copied state `Copied`)
+Micro row: `No account` · `One tap each` · `Free forever for friends`
+
+What happens next:
+
+```
+01 Create the room — You get a five-character code and a link to share.
+02 Drop it in the chat — Everyone opens it on their own phone and taps once.
+03 Roux calls the spot — One pick, two backups, directions for the whole group.
+```
+
+Memory note: `Rooms live in server memory for the demo: restart the app and the meetup is gone.
+Nothing is stored about you after the pick.`
+
+After-create: eyebrow `ROOM IS OPEN`, title `Share this link`, label `MEETUP CODE`,
+copy button (copied state `Copied`), `Share invite`, `Open this meetup yourself`,
+footer line `Rooms live in server memory · gone on restart`
 
 ## Meetup `/m/[code]`
 
+Eyebrow: `WAITING ROOM`
+Label: `WHO'S IN`
 Title: `Meetup {code}`
 Body: `Everyone who opens this link drops their spot on the map.`
 Button: `Share my location`
