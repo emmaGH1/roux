@@ -43,7 +43,8 @@ export type DatasetReason =
   | "ok"
   | "no-key"
   | "fixtures-forced"
-  | "key-rejected";
+  | "key-rejected"
+  | "rate-limited";
 
 export type Dataset = {
   locations: DiscoveryLocation[];
@@ -57,6 +58,17 @@ const PRODUCTION = "https://api.blackbird.xyz/flynet/v1";
 const PAGE_SIZE = 50;
 /** Safety valve: a pagination bug upstream must not spin forever. */
 const MAX_PAGES = 40;
+/**
+ * Flynet rate-limits bursts (429, "Retry after 1 seconds") — a full parallel
+ * fan-out of remaining pages trips it. Fetch pages in small batches instead;
+ * the dataset is cached for the life of the process, so the cold start costs
+ * a few seconds once.
+ */
+const PAGE_CONCURRENCY = 4;
+const RETRY_429_MAX = 3;
+const DEFAULT_429_WAIT_MS = 1100;
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const globalForCache = globalThis as unknown as {
   __rouxDataset?: Dataset;
@@ -98,6 +110,10 @@ async function describeFailure(res: Response): Promise<string> {
 
 type Page<T> = { items: T[]; totalPages: number | null };
 
+/**
+ * One page, with 429 retry. Flynet's limiter asks for ~1s waits; honor
+ * `Retry-After` when present, back off a little further each attempt.
+ */
 async function fetchPage<T>(
   key: string,
   base: string,
@@ -105,23 +121,38 @@ async function fetchPage<T>(
   page: number,
   itemKey: string
 ): Promise<Page<T>> {
-  const res = await fetch(`${base}${path}?page=${page}&page_size=${PAGE_SIZE}`, {
-    headers: { "X-API-Key": key },
-  });
-  if (!res.ok) {
-    throw new FlynetError(res.status, `${path} → ${await describeFailure(res)}`);
+  const url = `${base}${path}?page=${page}&page_size=${PAGE_SIZE}`;
+
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(url, { headers: { "X-API-Key": key } });
+
+    if (res.status === 429 && attempt < RETRY_429_MAX) {
+      const retryAfter = Number(res.headers.get("retry-after"));
+      const waitMs =
+        Number.isFinite(retryAfter) && retryAfter > 0
+          ? retryAfter * 1000
+          : DEFAULT_429_WAIT_MS * (attempt + 1);
+      await sleep(waitMs);
+      continue;
+    }
+
+    if (!res.ok) {
+      throw new FlynetError(res.status, `${path} → ${await describeFailure(res)}`);
+    }
+
+    const json = await res.json();
+    const pagination = json?.pagination ?? {};
+    return {
+      items: (json?.[itemKey] ?? []) as T[],
+      totalPages: typeof pagination.total_pages === "number" ? pagination.total_pages : null,
+    };
   }
-  const json = await res.json();
-  const pagination = json?.pagination ?? {};
-  return {
-    items: (json?.[itemKey] ?? []) as T[],
-    totalPages: typeof pagination.total_pages === "number" ? pagination.total_pages : null,
-  };
 }
 
 /**
- * Page 0 first, then the remainder in parallel — the dataset is cached for the
- * life of the process, so this cost is paid once on a cold start.
+ * Page 0 first (it also tells us the page count), then the remainder in small
+ * batches so the rate limiter never sees a burst. In-order concat keeps the
+ * dataset stable regardless of batch completion order.
  */
 async function listAll<T>(
   key: string,
@@ -133,12 +164,24 @@ async function listAll<T>(
   const total = Math.min(first.totalPages ?? 1, MAX_PAGES);
   if (total <= 1) return first.items;
 
-  const rest = await Promise.all(
-    Array.from({ length: total - 1 }, (_, i) =>
-      fetchPage<T>(key, base, path, i + 1, itemKey)
-    )
+  const rest: Array<Page<T> | null> = new Array(total - 1).fill(null);
+  for (let start = 1; start < total; start += PAGE_CONCURRENCY) {
+    const batch = Array.from(
+      { length: Math.min(PAGE_CONCURRENCY, total - start) },
+      (_, i) => start + i
+    );
+    const pages = await Promise.all(
+      batch.map((p) => fetchPage<T>(key, base, path, p, itemKey))
+    );
+    pages.forEach((page, i) => {
+      rest[batch[i] - 1] = page;
+    });
+  }
+
+  return rest.reduce(
+    (all, page) => all.concat(page?.items ?? []),
+    first.items
   );
-  return rest.reduce((all, page) => all.concat(page.items), first.items);
 }
 
 function fixtureDataset(reason: DatasetReason): Dataset {
@@ -233,11 +276,18 @@ export async function getDataset(): Promise<Dataset> {
       reason: "ok",
     };
   } catch (err) {
+    /* A 429 that survived every retry is a rate-limit story, not a credential
+       story — the honesty chip must not blame the key. */
+    const rateLimited =
+      err instanceof FlynetError &&
+      (err.status === 429 || err.message.includes("rate_limit"));
     console.error(
       `[discovery] Flynet load failed (${base}), using fixtures:`,
       err instanceof FlynetError ? err.message : err
     );
-    globalForCache.__rouxDataset = fixtureDataset("key-rejected");
+    globalForCache.__rouxDataset = fixtureDataset(
+      rateLimited ? "rate-limited" : "key-rejected"
+    );
   }
 
   return globalForCache.__rouxDataset;

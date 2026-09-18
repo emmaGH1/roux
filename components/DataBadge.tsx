@@ -68,13 +68,16 @@ export function DataBadge({
     );
   }
 
-  if (status.reason === "key-rejected") {
+  if (status.reason === "key-rejected" || status.reason === "rate-limited") {
+    const rateLimited = status.reason === "rate-limited";
     return (
       <span
         className={`${base} border-[#FDE68A] bg-[#FFFBEB] text-[#B45309] ${className}`}
       >
         <span className="inline-block h-1.5 w-1.5 rounded-full bg-[#F59E0B]" />
-        Flynet key rejected — showing sample data
+        {rateLimited
+          ? "Flynet rate-limited us — showing sample data"
+          : "Flynet key rejected — showing sample data"}
       </span>
     );
   }

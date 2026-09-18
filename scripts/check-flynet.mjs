@@ -90,6 +90,7 @@ function explain(status, body, wwwAuthenticate) {
     return "401 with an unparsed body";
   }
   if (status === 404) return "routing 404 — path does not match a known route";
+  if (status === 429) return "rate_limit_exceeded — too many requests in a row; the app fetches pages in small batches and honors Retry-After";
   if (status === 403) {
     return "403 — the key lacks the scope this route needs" + (wwwAuthenticate ? ` (${wwwAuthenticate})` : "");
   }
@@ -103,7 +104,7 @@ async function get(base, path) {
   return { res, body };
 }
 
-function shape(name, value) {
+function shape(value) {
   if (Array.isArray(value)) return "array";
   if (value === null) return "null";
   if (typeof value === "object") return `object { ${Object.keys(value).join(", ")} }`;
@@ -173,10 +174,44 @@ const restaurants = await probe("restaurants", "/restaurants?page=0&page_size=25
 const locRows = locations.locations ?? [];
 const pag = locations.pagination ?? {};
 say();
-say(`  ${bold("locations    ")} ${pag.total_count ?? locRows.length} total · ${pag.total_pages ?? "?"} pages of ${pag.page_size ?? "?"}`);
-if (restaurants) {
-  const rpag = restaurants.pagination ?? {};
-  say(`  ${bold("restaurants  ")} ${rpag.total_count ?? (restaurants.restaurants ?? []).length} total · ${rpag.total_pages ?? "?"} pages`);
+say(`  ${bold("locations    ")} ${pag.total_count ?? locRows.length} total · ${pag.total_pages ?? "?"} pages of ${pag.page_size ?? "?"}`);  if (restaurants) {
+    const rpag = restaurants.pagination ?? {};
+    say(`  ${bold("restaurants  ")} ${rpag.total_count ?? (restaurants.restaurants ?? []).length} total · ${rpag.total_pages ?? "?"} pages`);
+  }
+
+/* ── Pagination pattern: the same load path the app uses ──
+   A lone page-0 request can be honest while a full dataset load rate-limits.
+   lib/discovery.ts fetches pages in batches of 4 with page_size=50 and
+   retries a 429 up to 3×; mirror that here so the verdict means something. */
+const CONC = 4;
+const burstPages = Math.min(8, Math.max(1, (pag.total_pages ?? 1) - 1));
+if (burstPages > 0) {
+  const fetchWithRetry = async (p) => {
+    for (let attempt = 0; ; attempt++) {
+      const { res } = await get(base, `/locations?page=${p}&page_size=50`);
+      if (res.status === 429 && attempt < 3) {
+        const ra = Number(res.headers.get("retry-after"));
+        await new Promise((r) => setTimeout(r, Number.isFinite(ra) && ra > 0 ? ra * 1000 : 1100));
+        continue;
+      }
+      return res.status;
+    }
+  };
+  const statuses = [];
+  for (let start = 1; start <= burstPages; start += CONC) {
+    const batch = Array.from({ length: Math.min(CONC, burstPages - start + 1) }, (_, i) => start + i);
+    statuses.push(...(await Promise.all(batch.map(fetchWithRetry))));
+  }
+  const ok429retried = statuses.filter((s) => s === 200).length;
+  const limited = statuses.filter((s) => s === 429).length;
+  const other = statuses.filter((s) => s !== 200 && s !== 429).length;
+  say();
+  say(bold("Pagination burst") + dim(` (${burstPages} pages of 50 at concurrency ${CONC}, as the app loads)`));
+  say(`  ${green("200")} ×${ok429retried}  ${limited ? yellow("429 ×" + limited) : ""} ${other ? red("other ×" + other) : ""}`.trimEnd());
+  if (limited || other) {
+    say(`  ${yellow("Note")}: failures here mean the app fell back to sample data on that load —`);
+    say(`  check the footer badge after a cold start.`);
+  }
 }
 
 /* ── Shape audit: what our mapper actually relies on ── */
