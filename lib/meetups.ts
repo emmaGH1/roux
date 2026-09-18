@@ -78,8 +78,9 @@ export async function createMeetup(): Promise<Meetup> {
 
   /* Retry on the astronomically unlikely code collision. */
   for (let attempt = 0; attempt < 5; attempt++) {
-    const set = await redis<number>(["SET", keyOf(meetup.code), JSON.stringify(meetup), "EX", TTL_SECONDS, "NX"]);
-    if (set === 1) return meetup;
+    /* SET NX replies "OK" on success, null on collision — accept either shape. */
+    const set = await redis<string | number>(["SET", keyOf(meetup.code), JSON.stringify(meetup), "EX", TTL_SECONDS, "NX"]);
+    if (set === "OK" || set === 1) return meetup;
     meetup.code = generateCode();
   }
   throw new Error("could not allocate a meetup code");
