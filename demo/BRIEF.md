@@ -19,27 +19,29 @@ Use fixtures so the video is identical every take.
 
 | t (s) | URL | Hold | On screen |
 | --- | --- | --- | --- |
-| 0–8 | `/` | hero, no scroll | H1 + CTA |
-| 8–20 | `/meet?a=11211&b=11215` | form filled, map R visible | two zips + paper map |
-| 20–48 | `/meet/results?a=11211&b=11215` | list + map | OPEN rows, FLY on Flybar/Slope if open |
-| 48–70 | `/spot/flybar?a=11211&b=11215` | hours + FLY block | “This is the table” |
-| 70–90 | `/` or end card | wordmark | “Two points. One table.” |
+| 0–8 | `/` | hero, no scroll | H1 + CTAs + live app frame |
+| 8–16 | `/start` | one button in frame | "One button. You'll get a link to share." |
+| 16–32 | `/m/[code]` (from `/start`) | two shared locations | map fills in as friends tap |
+| 32–58 | `/m/[code]/result` | the deciding sequence, then pick | radar sweep → pin drop → pick card |
+| 58–75 | `/` scrolled to money-shot | sample pick card + OPEN NOW | "One point that's fair." |
+| 75–90 | `/` or end card | wordmark + footer CTA | "Everyone meets in the middle." |
 
-If a beat needs a cursor: click `#cta-meet`, `#submit-roux`, first `#results-list a`, `#pick-table`.
+If a beat needs a cursor: click `Start a meetup` in the navbar, the hero CTA on `/start`,
+`Find our spot` on the meetup screen (tap to skip the sequence only if needed).
 
 ## Visual overlay (HyperFrames, not the app)
 
-- Same paper `#F3EBE0` and wine `#7A1F2B`
-- Fraunces for titles
+- Same canvas `#ffffff` and violet `#7c6cf6`
+- Instrument Serif italic for title accents (the app's own accent voice)
 - Do not introduce navy, glass, or Inter in the video either
-- Lower-third: `ROUX` · `Open Blackbird rooms in the middle`
-- End card: roux.vercel.app (replace with real URL)
+- Lower-third: `ROUX` · `Everyone meets in the middle`
+- End card: your deployed URL (replace with real URL)
 
 ## Completeness checks
 
-- No typing typos in the capture (use query prefill)
-- Honesty: if fixtures, do not say “live mainnet”
-- Show OPEN as a real filter (a closed club should not appear Saturday afternoon)
+- No typing typos in the capture (use `/demo?beat=` prefills)
+- Honesty: with fixtures on screen, keep the "sample data" chip visible in at least one shot
+- Show OPEN NOW as real state — a closed room must not carry the badge
 
 ## Out of video
 

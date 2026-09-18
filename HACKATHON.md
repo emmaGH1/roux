@@ -18,19 +18,20 @@
 
 ## Build decision
 - User: two people who live apart and need one Blackbird table
-- Job: geographic midpoint → open now
-- Difference: no ratings; open + km + FLY special
-- Distinctive action: paper map, two dots, wine R
-- Risk: keys late / staging empty → keep fixtures, honesty banner
+- Job: geographic midpoint → nearest rooms ranked, pick + two backups
+- Difference: no ratings; fairness + km + OPEN NOW + FLY special
+- Distinctive action: the deciding second — radar sweep, pin drop, one fair room
+- Risk: keys late / staging empty → keep fixtures, honesty never env-derived
 - Rejected: trading desk, heat map, Dead Hour as the product, Sitting during-meal, reverse reservation, Stripe POS
 
 ## Evidence (fill at freeze)
 
 | Criterion | Claim | Evidence | Judge path | Status |
 | --- | --- | --- | --- | --- |
-| Flynet use | Locations/hours/specials | live.ts or labeled fixtures | /meet/results | pending keys |
-| Product | Two zips → open list | fixture path | /demo beats | pending build |
-| Honesty | Fixture vs live | banner + README table | README | specced |
+| Flynet use | Locations/hours/specials | `lib/discovery.ts` live path, verified against documented payloads | `/m/[code]/result` | mapper done; key pending |
+| Product | Two taps → fair pick + backups | fixture path | `/demo?beat=1..5` | built |
+| Honesty | Fixture vs live | `/api/status` + footer badge + `data-source` | footer badge, README | built |
+| Diagnostic | One-command live check | `npm run check:flynet` | README | built |
 
 ## Submission
 - Tracks: Blackbird (and Bankr auto)
