@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMeetup } from "@/lib/meetups";
-import { getDataset, getSpecial } from "@/lib/discovery";
+import { getDataset, getSpecial, getOpenState } from "@/lib/discovery";
 import { fairPoint, km, rankLocations, directionsUrl } from "@/lib/result";
 
 /**
@@ -35,6 +35,7 @@ export async function POST(
 
   const pick = top[0];
   const special = await getSpecial(pick.restaurant_id);
+  const open = await getOpenState(pick);
 
   return NextResponse.json({
     source: dataset.source,
@@ -47,7 +48,11 @@ export async function POST(
       address: pick.address,
       coordinate: pick.coordinate,
       distance_km: km(mid, pick.coordinate),
+      open,
       special,
+      cuisine: pick.cuisine,
+      price: pick.price,
+      image_url: pick.image_url,
       directions_url: directionsUrl(pick.coordinate),
     },
     backups: top.slice(1).map((b) => ({

@@ -221,7 +221,9 @@ Button: `Find our spot` (enabled at count ≥ 2)
 
 Kicker: `THE PICK`
 Title: restaurant name
-Meta: `{neighborhood} · {km} km from the middle`
+Meta: `{neighborhood} · {address} · {km} km from the middle`
+Meta chips (factual brand detail, never a rating): `{cuisine}` · price band `$`–`$$$$`
+Venue art: restaurant `asset` image, square, only when the brand has one
 Perk block: chip `TODAY'S PERK` + `{special label}` + `{special description}`
 Directions button: `Get directions`
 Backups heading: `If that doesn't work`

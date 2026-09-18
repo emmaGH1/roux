@@ -4,9 +4,9 @@ import { Reveal } from "@/components/Reveal";
 import { CountUp } from "@/components/CountUp";
 import { OpenNowBadge } from "@/components/OpenNowBadge";
 import { ParallaxCard } from "@/components/ParallaxCard";
-import { Bezel, Check, Eyebrow, Pill } from "@/components/ui";
+import { Bezel, Check, Eyebrow, MetaChips, Pill } from "@/components/ui";
 import { SiteFooter } from "@/components/SiteFooter";
-import { getDataset, getSpecial, openNowAt } from "@/lib/discovery";
+import { getDataset, getSpecial, getOpenState } from "@/lib/discovery";
 import { fairPoint, km, rankLocations, directionsUrl, type Point } from "@/lib/result";
 import { LandingChrome } from "./LandingChrome";
 
@@ -65,11 +65,13 @@ export default async function MarketingPage() {
   const pick = ranked[0];
   const backups = ranked.slice(1, 3);
   const special = pick ? await getSpecial(pick.restaurant_id) : null;
+  const pickOpen = pick ? await getOpenState(pick) : null;
 
   const heroMid = fairPoint(HERO_PEOPLE);
   const heroRanked = rankLocations(heroMid, dataset.locations);
   const heroPick = heroRanked[0];
   const heroBackups = heroRanked.slice(1, 3);
+  const heroOpen = heroPick ? await getOpenState(heroPick) : null;
 
   const sampleMarkers: MapMarker[] = [
     ...SAMPLE_PEOPLE.map((p) => ({ ...p, kind: "person" as const })),
@@ -170,9 +172,7 @@ export default async function MarketingPage() {
                       <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.16em] text-[var(--violet)]">
                         Meet-here pick
                       </span>
-                      {openNowAt(heroPick.location_id) !== null && (
-                        <OpenNowBadge open={openNowAt(heroPick.location_id) ?? false} />
-                      )}
+                      {heroOpen !== null && <OpenNowBadge open={heroOpen} />}
                     </div>
                     <p className="mt-2 text-[20px] font-semibold tracking-[-0.02em]">
                       {heroPick.restaurant_name}
@@ -182,6 +182,11 @@ export default async function MarketingPage() {
                       <CountUp value={km(heroMid, heroPick.coordinate)} decimals={1} suffix=" km" />{" "}
                       from the middle
                     </p>
+                    <MetaChips
+                      cuisine={heroPick.cuisine ?? []}
+                      price={heroPick.price ?? null}
+                      className="mt-2"
+                    />
                   </div>
                 )}
               </div>
@@ -250,25 +255,39 @@ export default async function MarketingPage() {
                     <span className="font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.16em] font-medium text-[var(--violet)]">
                       MEET-HERE PICK
                     </span>
-                    {pick && <OpenNowBadge open={openNowAt(pick.location_id) ?? false} />}
+                    {pickOpen !== null && <OpenNowBadge open={pickOpen} />}
                   </div>
 
-                  <div className="mt-3 flex items-baseline justify-between gap-4">
-                    <h3 className="text-[30px] font-semibold tracking-[-0.03em]">
-                      {pick?.restaurant_name ?? "The fair middle"}
-                    </h3>
-                    <span className="shrink-0 font-[family-name:var(--font-mono)] text-[13px] text-[var(--gray)]">
-                      {pick ? (
-                        <CountUp value={km(mid, pick.coordinate)} decimals={1} suffix=" km" />
-                      ) : (
-                        ""
-                      )}
-                    </span>
+                  <div className="mt-3 flex items-start justify-between gap-4">
+                    <div>
+                      <h3 className="text-[30px] font-semibold tracking-[-0.03em]">
+                        {pick?.restaurant_name ?? "The fair middle"}
+                      </h3>
+                      <p className="mt-1 text-[14px] text-[var(--gray)]">
+                        {pick?.neighborhood}
+                        {pick ? " · " : ""}
+                        {pick && (
+                          <CountUp value={km(mid, pick.coordinate)} decimals={1} suffix=" km" />
+                        )}
+                        {pick ? " from the middle" : ""}
+                      </p>
+                    </div>
+                    {pick?.image_url && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={pick.image_url}
+                        alt=""
+                        aria-hidden
+                        className="h-14 w-14 shrink-0 rounded-[14px] border border-[var(--hairline)] object-cover"
+                      />
+                    )}
                   </div>
-                  <p className="mt-1 text-[14px] text-[var(--gray)]">
-                    {pick?.neighborhood}
-                    {pick ? ` · ${km(mid, pick.coordinate)} km from the middle` : ""}
-                  </p>
+
+                  <MetaChips
+                    cuisine={pick?.cuisine ?? []}
+                    price={pick?.price ?? null}
+                    className="mt-3"
+                  />
 
                   {special && (
                     <div className="mt-5 rounded-[16px] border border-[var(--hairline)] bg-[var(--canvas-soft)] p-4">

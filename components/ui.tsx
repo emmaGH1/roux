@@ -126,6 +126,41 @@ export function Pill({
   );
 }
 
+/**
+ * Factual brand detail only — cuisine and a price band, never a rating.
+ * Renders nothing when a location carries neither, so cards stay clean.
+ */
+export function MetaChips({
+  cuisine,
+  price,
+  className = "",
+}: {
+  cuisine: string[];
+  price: number | null;
+  className?: string;
+}) {
+  const band = price && price > 0 ? "$".repeat(Math.min(4, Math.round(price))) : null;
+  if (cuisine.length === 0 && !band) return null;
+
+  return (
+    <div className={`flex flex-wrap items-center gap-2 ${className}`}>
+      {cuisine.map((c) => (
+        <span
+          key={c}
+          className="rounded-full border border-[var(--hairline)] bg-[var(--canvas-soft)] px-2.5 py-1 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.12em] text-[var(--ink-soft)]"
+        >
+          {c}
+        </span>
+      ))}
+      {band && (
+        <span className="rounded-full border border-[var(--hairline)] px-2.5 py-1 font-[family-name:var(--font-mono)] text-[10px] tracking-[0.12em] text-[var(--gray)]">
+          {band}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function Check({ className = "" }: { className?: string }) {
   return (
     <svg

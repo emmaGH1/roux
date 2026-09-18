@@ -10,10 +10,18 @@ const DAYS = [
   "saturday",
 ] as const;
 
-/** Hours are local to America/New_York. close_time 24:00 = midnight. 02:00 after 20:00 = next day. */
-export function isOpenAt(hours: OpenHour[], at: Date = new Date()): boolean {
+/**
+ * Hours are local to the location's own time zone (live rows carry `time_zone`;
+ * fixtures are all New York). close_time 24:00 = midnight; a close earlier than
+ * the open time means the closing time is after midnight.
+ */
+export function isOpenAt(
+  hours: OpenHour[],
+  at: Date = new Date(),
+  timeZone = "America/New_York"
+): boolean {
   const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
+    timeZone,
     weekday: "long",
     hour: "2-digit",
     minute: "2-digit",
@@ -54,9 +62,13 @@ function parseHm(t: string): number {
   return h * 60 + m;
 }
 
-export function todayHours(hours: OpenHour[], at: Date = new Date()): OpenHour | null {
+export function todayHours(
+  hours: OpenHour[],
+  at: Date = new Date(),
+  timeZone = "America/New_York"
+): OpenHour | null {
   const weekday = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/New_York",
+    timeZone,
     weekday: "long",
   })
     .format(at)

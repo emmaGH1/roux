@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { getDataset, getSpecial, openNowAt } from "@/lib/discovery";
+import { getDataset, getSpecial, getOpenState } from "@/lib/discovery";
 import { fairPoint, km, rankLocations, directionsUrl, type Point } from "@/lib/result";
 import { lookupZip } from "@/lib/zips";
 import { ResultClient } from "@/app/(product)/m/[code]/result/ResultClient";
@@ -33,6 +33,7 @@ export default async function MeetResultsPage(props: PageProps) {
 
   const pick = top[0];
   const special = await getSpecial(pick.restaurant_id);
+  const open = await getOpenState(pick);
 
   const payload = {
     source: dataset.source,
@@ -44,8 +45,11 @@ export default async function MeetResultsPage(props: PageProps) {
       address: pick.address,
       coordinate: pick.coordinate,
       distance_km: km(mid, pick.coordinate),
-      open: openNowAt(pick.location_id),
+      open,
       special,
+      cuisine: pick.cuisine,
+      price: pick.price,
+      image_url: pick.image_url,
       directions_url: directionsUrl(pick.coordinate),
     },
     backups: top.slice(1).map((bk) => ({

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { MapView, type MapMarker } from "@/components/MapView";
 import { CountUp } from "@/components/CountUp";
 import { OpenNowBadge } from "@/components/OpenNowBadge";
+import { MetaChips } from "@/components/ui";
 
 type ResultPayload = {
   source: "fixture" | "flynet";
@@ -18,6 +19,9 @@ type ResultPayload = {
     distance_km: number;
     open: boolean | null;
     special: { label: string; description: string } | null;
+    cuisine: string[];
+    price: number | null;
+    image_url: string | null;
     directions_url: string;
   };
   backups: Array<{
@@ -114,15 +118,34 @@ export function ResultClient({ payload }: { payload: ResultPayload }) {
           </span>
           {payload.pick.open !== null && <OpenNowBadge open={payload.pick.open} />}
         </div>
-        <h1 className="text-[28px] font-semibold tracking-tight mt-1">
-          {payload.pick.restaurant_name}
-        </h1>
-        <p className="text-[14px] text-[var(--gray)] mt-1">
-          {payload.pick.neighborhood}
-          {payload.pick.address ? ` · ${payload.pick.address}` : ""} ·{" "}
-          <CountUp value={payload.pick.distance_km} decimals={1} suffix=" km" /> from the
-          middle
-        </p>
+        <div className="mt-1 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-[28px] font-semibold tracking-tight">
+              {payload.pick.restaurant_name}
+            </h1>
+            <p className="text-[14px] text-[var(--gray)] mt-1">
+              {payload.pick.neighborhood}
+              {payload.pick.address ? ` · ${payload.pick.address}` : ""} ·{" "}
+              <CountUp value={payload.pick.distance_km} decimals={1} suffix=" km" /> from the
+              middle
+            </p>
+          </div>
+          {payload.pick.image_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={payload.pick.image_url}
+              alt=""
+              aria-hidden
+              className="h-14 w-14 shrink-0 rounded-[14px] border border-[var(--hairline)] object-cover"
+            />
+          )}
+        </div>
+
+        <MetaChips
+          cuisine={payload.pick.cuisine ?? []}
+          price={payload.pick.price ?? null}
+          className="mt-3"
+        />
 
         {payload.pick.special && (
           <div className="mt-4 bg-[var(--canvas-soft)] border border-[var(--border)] rounded-xl p-4">

@@ -9,7 +9,7 @@
  */
 
 import restaurantsJson from "../fixtures/restaurants.json";
-import type { RouxSpot } from "./types";
+import type { OpenHour, RouxSpot } from "./types";
 import { isOpenAt } from "./openNow";
 
 export type DiscoveryLocation = {
@@ -24,6 +24,13 @@ export type DiscoveryLocation = {
   address: string;
   coordinate: { lat: number; lng: number };
   is_club: boolean;
+  /** Factual brand detail from /restaurants — never a rating. */
+  cuisine: string[];
+  price: number | null;
+  /** Brand artwork from the restaurant's asset set, when it has one. */
+  image_url: string | null;
+  /** IANA zone for this location's open hours; hours are local to it. */
+  time_zone: string | null;
 };
 
 export type DatasetSource = "fixture" | "flynet";
@@ -51,7 +58,13 @@ const PAGE_SIZE = 50;
 /** Safety valve: a pagination bug upstream must not spin forever. */
 const MAX_PAGES = 40;
 
-const globalForCache = globalThis as unknown as { __rouxDataset?: Dataset };
+const globalForCache = globalThis as unknown as {
+  __rouxDataset?: Dataset;
+  __rouxHours?: Map<string, { hours: OpenHour[] | null; at: number }>;
+};
+
+/** Hours barely change; a short TTL keeps them fresh without a fetch per render. */
+const HOURS_TTL_MS = 10 * 60 * 1000;
 
 /** Keys are environment-bound and not interchangeable, so the key picks the host. */
 function baseUrl(key: string | undefined): string {
@@ -144,6 +157,10 @@ function fixtureDataset(reason: DatasetReason): Dataset {
       address: `${s.neighborhood}, New York, NY`,
       coordinate: { lat: s.lat, lng: s.lng },
       is_club: s.is_club,
+      cuisine: s.cuisine ?? [],
+      price: s.price ?? null,
+      image_url: null,
+      time_zone: "America/New_York",
     })),
   };
 }
@@ -182,7 +199,10 @@ export async function getDataset(): Promise<Dataset> {
       if (typeof lat !== "number" || typeof lng !== "number") continue;
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
 
-      const brand = loc.restaurant?.id ? rmap.get(loc.restaurant.id)?.name : undefined;
+      /* The whole restaurant row, not just its name — cuisine, price and the
+         asset set all live here. */
+      const restaurant = loc.restaurant?.id ? rmap.get(loc.restaurant.id) : undefined;
+      const brand = restaurant?.name;
       const city = loc.address?.city;
       const state = loc.address?.state;
 
@@ -200,6 +220,10 @@ export async function getDataset(): Promise<Dataset> {
             : [city, state].filter(Boolean).join(", "),
         coordinate: { lat, lng },
         is_club: Boolean(loc.is_club),
+        cuisine: Array.isArray(restaurant?.cuisine) ? restaurant.cuisine : [],
+        price: typeof restaurant?.price === "number" ? restaurant.price : null,
+        image_url: restaurant?.asset?.web_2x ?? restaurant?.asset?.preview_1x ?? null,
+        time_zone: loc.time_zone ?? null,
       });
     }
 
@@ -236,10 +260,55 @@ export async function getDatasetStatus(): Promise<{
   return { source: dataset.source, reason: dataset.reason };
 }
 
-export function openNowAt(locationId: string): boolean | null {
-  if (globalForCache.__rouxDataset?.source === "flynet") return null;
-  const spot = (restaurantsJson as RouxSpot[]).find((s) => s.id === locationId);
-  return spot ? isOpenAt(spot.hours) : null;
+/**
+ * Weekly hours for one location. Fixtures carry hours in the file; live rows
+ * need a separate, unpaginated route, so that fetch is cached per location and
+ * only ever made for the pick.
+ */
+export async function getOpenHours(locationId: string): Promise<OpenHour[] | null> {
+  const fixtureHours = (restaurantsJson as RouxSpot[]).find((s) => s.id === locationId)
+    ?.hours;
+
+  if (globalForCache.__rouxDataset?.source !== "flynet") return fixtureHours ?? null;
+
+  const key = process.env.FLYNET_API_KEY;
+  if (!key) return null;
+
+  const cache = (globalForCache.__rouxHours ??= new Map());
+  const hit = cache.get(locationId);
+  if (hit && Date.now() - hit.at < HOURS_TTL_MS) return hit.hours;
+
+  try {
+    const res = await fetch(`${baseUrl(key)}/locations/${locationId}/open_hours`, {
+      headers: { "X-API-Key": key },
+    });
+    if (!res.ok) {
+      console.warn(
+        `[discovery] open_hours ${res.status} for ${locationId} — ${await describeFailure(res)}`
+      );
+      cache.set(locationId, { hours: null, at: Date.now() });
+      return null;
+    }
+    const json = await res.json();
+    const hours = Array.isArray(json?.open_hours) ? (json.open_hours as OpenHour[]) : [];
+    cache.set(locationId, { hours, at: Date.now() });
+    return hours;
+  } catch (err) {
+    console.warn("[discovery] open_hours request failed:", err);
+    return null;
+  }
+}
+
+/**
+ * Open right now? `null` when hours aren't known — the badge stays hidden and
+ * the UI never guesses.
+ */
+export async function getOpenState(
+  location: DiscoveryLocation
+): Promise<boolean | null> {
+  const hours = await getOpenHours(location.location_id);
+  if (!hours || hours.length === 0) return null;
+  return isOpenAt(hours, new Date(), location.time_zone ?? "America/New_York");
 }
 
 /**

@@ -7,6 +7,9 @@
 | Fair point | `lib/geo.ts` centroid | same |
 | Ranking | haversine on fixture coords | same on live coords |
 | Specials | fixture specials | `GET /specials?restaurant={id}` (pick only; failure = omitted silently) |
+| Open hours | fixture `hours` | `GET /locations/{id}/open_hours` (pick only, cached 10 min, evaluated in the location's `time_zone`) |
+| Cuisine + price band | fixture rows | `GET /restaurants` (`cuisine`, `price`) |
+| Venue art | none | restaurant `asset` (`web_2x`, else `preview_1x`); absent → no image, never a placeholder |
 | Ratings | none | none |
 | Payments / booking | none | none |
 | Data-source badge | `GET /api/status` reads the dataset actually loaded, so a rejected key reads "showing sample data" | same |
