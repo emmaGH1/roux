@@ -208,7 +208,7 @@ export default function StartPage() {
         </div>
 
         <p className="mt-8 text-center font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.14em] text-[var(--gray-light)]">
-          Rooms live in server memory · gone on restart
+          Rooms expire after 24 hours · nothing stored about you
         </p>
 
         {error && <p className="mt-4 text-center text-[13px] text-red-500">{error}</p>}

@@ -115,8 +115,8 @@ export default function MeetupPage({
           That meetup doesn&rsquo;t exist.
         </h1>
         <p className="mx-auto mt-3 max-w-[380px] text-[15px] leading-[1.6] text-[var(--gray)]">
-          The link may be mistyped, or the meetup already ended. Meetups live in
-          server memory, so they disappear on restart.
+          The link may be mistyped, or the meetup already ended. Meetups expire
+          24 hours after they&rsquo;re created.
         </p>
         <Link
           href="/start"
