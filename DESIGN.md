@@ -97,13 +97,21 @@ Scale:
 - `prefers-reduced-motion: reduce` → everything static-visible, no marquee, no radar
 - No motion libraries. No scroll-hijack. No 3D theater.
 
-## Map (Mapbox GL) — three tiers
+## Map (Mapbox GL) — one stage, three tiers
+
+All three render into the same frame, so a tier change is never a layout change:
 
 1. **WebGL map** — light treatment, no POI clutter, dark/violet markers, mono LAT/LNG chip
-2. **Static Images API** (`mapbox/light-v11`) — a real map image when WebGL is unavailable;
-   labeled `Static view · WebGL off`
+2. **Static Images API** (`mapbox/light-v11`) — a real map image, used two ways:
+   - as the **always-on underlay**, which the WebGL canvas cross-fades in over once it has
+     painted (a slow or failed start therefore reveals nothing — a real map is already there)
+   - as the fallback tier, labeled `Static view · WebGL off`
 3. **Drawn diagram** — real coordinates plotted as SVG when no tiles are reachable;
    labeled `Static view · tiles unavailable`
+
+`preferStatic` opts a map out of WebGL on purpose, labeled plainly `Static map`. Use it where
+live tiles add cost without adding information: **one live WebGL map per page** is the rule,
+because a page initialising two at once is measurably more fragile than one.
 
 Token comes from `NEXT_PUBLIC_MAPBOX_TOKEN` (public `pk.` by design). A missing token, a slow
 style load, or a thrown error must always downgrade a tier — never render an empty rectangle,

@@ -343,8 +343,10 @@ export default async function MarketingPage() {
       <section id="fair-middle" className="px-6 py-28">
         <div className="mx-auto grid max-w-[var(--page-max)] grid-cols-1 items-center gap-16 lg:grid-cols-[1.02fr_0.98fr]">
           <Reveal>
+            {/* One live map per page: the hero owns the WebGL context, this one
+                is a still of the same treatment. */}
             <Bezel className="shadow-[var(--shadow-lg)]" coreClassName="bg-[var(--canvas-soft)]">
-              <MapView markers={sampleMarkers} bare height={460} showCoordsChip />
+              <MapView markers={sampleMarkers} bare height={460} showCoordsChip preferStatic />
             </Bezel>
           </Reveal>
 

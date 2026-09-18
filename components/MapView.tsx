@@ -24,6 +24,12 @@ type MapViewProps = {
   /** drop the own frame — the parent bezel owns the shape */
   bare?: boolean;
   className?: string;
+  /**
+   * Skip WebGL entirely and render the static image on purpose. Used where a
+   * second live map adds cost and risk without adding information — a page
+   * initialising two WebGL maps at once is measurably more fragile.
+   */
+  preferStatic?: boolean;
 };
 
 const VIOLET = "#7c6cf6";
@@ -85,11 +91,14 @@ export function MapView({
   sweepCenter,
   bare = false,
   className = "",
+  preferStatic = false,
 }: MapViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
   const [mode, setMode] = useState<Mode>("webgl");
   const [staticBroken, setStaticBroken] = useState(false);
+  /* The canvas fades in over the static image once it has actually painted. */
+  const [revealed, setRevealed] = useState(false);
 
   const fits = markers.filter(valid);
   const cx = fits.length ? fits.reduce((s, m) => s + m.lng, 0) / fits.length : 0;
@@ -110,7 +119,7 @@ export function MapView({
       setMode("diagram");
       return;
     }
-    if (!webgl2Available()) {
+    if (preferStatic || !webgl2Available()) {
       setMode("static");
       return;
     }
@@ -229,6 +238,9 @@ export function MapView({
               .setLngLat([m.lng, m.lat])
               .addTo(map);
           }
+
+          /* Painted and staged — hand over from the static underlay. */
+          setRevealed(true);
 
           /* Radar: two expanding rings from the fair middle — the sweep that
              "finds" the pick right before it lands. */
@@ -351,7 +363,7 @@ export function MapView({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [markerKey, sweepKey, token, zoomPadding, cinematic, mode]);
+  }, [markerKey, sweepKey, token, zoomPadding, cinematic, mode, preferStatic]);
 
   const shell = bare
     ? `relative overflow-hidden ${className}`
@@ -363,44 +375,56 @@ export function MapView({
     </div>
   );
 
-  /* ── Tier 2: a real static map image ── */
-  if (token && !staticBroken && (mode === "static" || mode === "diagram")) {
-    if (mode === "static") {
-      return (
-        <div className={shell} style={{ height }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={staticMapUrl(token, markers, height)}
-            alt="Map of the group's locations and the fair middle pick."
-            className="h-full w-full object-cover"
-            onError={() => setStaticBroken(true)}
-          />
-          {chip}
-          <span className="absolute bottom-3 left-3 z-10 rounded-full bg-white/90 px-3 py-1 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.14em] text-[var(--gray)]">
-            Static view · WebGL off
-          </span>
-        </div>
-      );
-    }
-  }
+  /* ── Tiers 2 and 3 on one stage ──
+     A real static image always sits underneath, and the WebGL canvas
+     cross-fades in over it once it has painted. So a slow or failed WebGL
+     start has nothing to reveal: a real map is already on screen, and the
+     only visible change is the honest tier label. */
+  const diagramView = mode === "diagram" || (mode === "static" && staticBroken);
+  const underlaySrc =
+    token && !staticBroken && !diagramView ? staticMapUrl(token, markers, height) : null;
+  const canvas = !diagramView && mode === "webgl";
 
-  /* ── Tier 3: drawn diagram (no tiles, no token, no WebGL) ── */
-  if (mode === "diagram" || staticBroken) {
-    return (
-      <div className={shell} style={{ height }}>
-        <Diagram markers={fits} />
-        {chip}
-        <span className="absolute bottom-3 left-3 z-10 rounded-full bg-white/90 px-3 py-1 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.14em] text-[var(--gray)]">
-          Static view · tiles unavailable
-        </span>
-      </div>
-    );
-  }
+  const tierLabel = (text: string) => (
+    <span className="absolute bottom-3 left-3 z-10 rounded-full bg-white/90 px-3 py-1 font-[family-name:var(--font-mono)] text-[10px] uppercase tracking-[0.14em] text-[var(--gray)]">
+      {text}
+    </span>
+  );
 
   return (
     <div className={shell} style={{ height }}>
-      <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
+      {underlaySrc && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={underlaySrc}
+          alt="Map of the group's locations and the fair middle pick."
+          aria-hidden={canvas}
+          decoding="async"
+          fetchPriority="low"
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+            revealed ? "opacity-0" : "opacity-100"
+          }`}
+          onError={() => setStaticBroken(true)}
+        />
+      )}
+
+      {canvas && (
+        <div
+          ref={containerRef}
+          className={`absolute inset-0 transition-opacity duration-700 ${
+            revealed ? "opacity-100" : "opacity-0"
+          }`}
+          style={{ height: "100%", width: "100%" }}
+        />
+      )}
+
+      {diagramView && <Diagram markers={fits} />}
+
       {chip}
+      {mode === "static" &&
+        tierLabel(preferStatic ? "Static map" : "Static view · WebGL off")}
+      {diagramView && tierLabel("Static view · tiles unavailable")}
+
       <style>{`
         @keyframes map-pulse {
           0% { transform: scale(1); opacity: .8; }

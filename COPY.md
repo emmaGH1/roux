@@ -230,6 +230,14 @@ Backups heading: `If that doesn't work`
 Backup row: `{name} · {neighborhood} · {km} km` + `Directions`
 Reset link: `Start over`
 
+## Map tier labels
+
+```
+Static map                     (this map opted out of WebGL on purpose)
+Static view · WebGL off        (WebGL unavailable or never finished loading)
+Static view · tiles unavailable (no token or no tiles reachable)
+```
+
 ## Data-source badge (rendered by `DataBadge` from `/api/status`)
 
 ```
