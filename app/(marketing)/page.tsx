@@ -53,7 +53,7 @@ const WONT_DO = [
   },
   {
     title: "No accounts, no history.",
-    body: "Meetups live in server memory and disappear when the process restarts. Nothing to log into.",
+    body: "Rooms expire after 24 hours. Nothing to log into, nothing kept about you.",
   },
 ];
 

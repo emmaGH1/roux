@@ -181,8 +181,8 @@ export function SiteFooter({
               HONESTY
             </span>
             <p className="mt-5 text-[15px] leading-[1.6] text-[var(--gray)]">
-              Meetups live in server memory and vanish on restart. Nothing is
-              stored about you after the pick.
+              Rooms expire after 24 hours. Nothing is stored about you after
+              the pick.
             </p>
             <div className="mt-5">
               <DataBadge initial={status ?? null} className="text-left leading-[1.5]" />
