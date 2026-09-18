@@ -197,12 +197,12 @@ What happens next:
 03 Roux calls the spot — One pick, two backups, directions for the whole group.
 ```
 
-Memory note: `Rooms live in server memory for the demo: restart the app and the meetup is gone.
-Nothing is stored about you after the pick.`
+Memory note: `Rooms expire after 24 hours. Nothing is stored about you after the pick.`
+(When Upstash is not configured locally, rooms are in-memory and die on restart.)
 
 After-create: eyebrow `ROOM IS OPEN`, title `Share this link`, label `MEETUP CODE`,
 copy button (copied state `Copied`), `Share invite`, `Open this meetup yourself`,
-footer line `Rooms live in server memory · gone on restart`
+footer line `Rooms expire after 24 hours · nothing stored about you`
 
 ## Meetup `/m/[code]`
 

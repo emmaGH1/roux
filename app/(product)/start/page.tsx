@@ -328,8 +328,8 @@ export default function StartPage() {
           </svg>
         </span>
         <p className="text-[13px] leading-[1.6] text-[var(--gray)]">
-          Rooms live in server memory for the demo: restart the app and the meetup
-          is gone. Nothing is stored about you after the pick.
+          Rooms expire after 24 hours. Nothing is stored about you after the
+          pick.
         </p>
       </div>
     </div>
