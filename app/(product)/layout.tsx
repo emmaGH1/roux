@@ -1,7 +1,5 @@
 import Link from "next/link";
-
-const isLive =
-  process.env.USE_FIXTURES === "false" && Boolean(process.env.FLYNET_API_KEY);
+import { DataBadge } from "@/components/DataBadge";
 
 export default function ProductLayout({
   children,
@@ -11,7 +9,6 @@ export default function ProductLayout({
   return (
     <div
       data-demo="roux"
-      data-source={isLive ? "flynet" : "fixture"}
       className="relative min-h-screen bg-[var(--canvas)] text-[var(--ink)]"
     >
       <div
@@ -33,11 +30,7 @@ export default function ProductLayout({
             <span className="inline-flex h-2 w-2 rounded-full bg-[var(--violet)]" />
             Roux
           </Link>
-          {!isLive && (
-            <span className="max-w-[190px] text-right font-[family-name:var(--font-mono)] text-[9px] uppercase leading-[1.5] tracking-[0.14em] text-[var(--gray)]">
-              Sample data. Live Flynet when keys are in.
-            </span>
-          )}
+          <DataBadge className="max-w-[210px] text-right leading-[1.5]" />
         </div>
       </header>
 

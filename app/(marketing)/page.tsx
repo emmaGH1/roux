@@ -519,7 +519,9 @@ export default async function MarketingPage() {
 
             <div className="mt-9 flex flex-wrap gap-3">
               {[
-                `Discovery: ${dataset.locations.length} locations cached in server memory`,
+                dataset.source === "flynet"
+                  ? `Live Discovery: ${dataset.locations.length} locations cached in server memory`
+                  : `Sample data: ${dataset.locations.length} fixture locations`,
                 "API key stays server-side",
                 "Specials fetched only for the pick",
               ].map((chip) => (
@@ -620,7 +622,7 @@ export default async function MarketingPage() {
         </div>
       </section>
 
-      <SiteFooter />
+      <SiteFooter status={{ source: dataset.source, reason: dataset.reason }} />
     </LandingChrome>
   );
 }

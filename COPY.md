@@ -228,11 +228,17 @@ Backups heading: `If that doesn't work`
 Backup row: `{name} · {neighborhood} · {km} km` + `Directions`
 Reset link: `Start over`
 
-## Honesty banner (when fixtures active)
+## Data-source badge (rendered by `DataBadge` from `/api/status`)
 
 ```
-Sample data. Live Flynet when keys are in.
+Checking data source            (neutral, before the truth is known)
+Live Flynet data                (green, source = flynet)
+Sample data. Live Flynet when keys are in.   (no key / fixtures forced)
+Flynet key rejected — showing sample data    (key present but rejected)
 ```
+
+These strings come from the dataset actually loaded, never from env vars: a
+statically prerendered screen would otherwise freeze a claim that is wrong.
 
 ## Alt text
 

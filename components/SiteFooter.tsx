@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Bezel, Eyebrow, Pill } from "@/components/ui";
+import { DataBadge } from "@/components/DataBadge";
+import type { DatasetReason, DatasetSource } from "@/lib/discovery";
 
 const PARTNERS = [
   { name: "Flynet", note: "Discovery API", href: "https://docs.flynet.org" },
@@ -22,7 +24,12 @@ const UNDER_LINKS = [
   { label: "What Roux won't do", href: "#honesty" },
 ];
 
-export function SiteFooter() {
+export function SiteFooter({
+  status,
+}: {
+  /** The source the server already knows, so the landing badge never flashes. */
+  status?: { source: DatasetSource; reason: DatasetReason };
+} = {}) {
   return (
     <footer className="px-6 pb-10 pt-6">
       <div className="mx-auto max-w-[var(--page-max)]">
@@ -142,9 +149,12 @@ export function SiteFooter() {
               HONESTY
             </span>
             <p className="mt-5 text-[15px] leading-[1.6] text-[var(--gray)]">
-              Sample data. Live Flynet when keys are in. Meetups live in server
-              memory and vanish on restart.
+              Meetups live in server memory and vanish on restart. Nothing is
+              stored about you after the pick.
             </p>
+            <div className="mt-5">
+              <DataBadge initial={status ?? null} className="text-left leading-[1.5]" />
+            </div>
           </div>
         </div>
 

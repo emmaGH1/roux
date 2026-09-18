@@ -19,6 +19,7 @@ Each URL is a separate `page.tsx`. Do not combine.
 | `/api/meetups/[code]` | GET | `{ count }` |
 | `/api/meetups/[code]/locations` | POST | `{ count }` — body `{ lat, lng }` |
 | `/api/meetups/[code]/result` | POST | `{ midpoint, pick, backups }` per PRD §5 shape |
+| `/api/status` | GET | `{ source: "fixture" \| "flynet", reason }` — the truth behind the honesty badge |
 
 ## Query contracts
 
@@ -38,7 +39,8 @@ Each URL is a separate `page.tsx`. Do not combine.
 
 ## data-* for video
 
-- `data-source="fixture" | "flynet"` on product screens
+- `data-source="fixture" | "flynet"` on `<html>`, set by `DataBadge` from `/api/status`
+  (env-derived values bake at build time on prerendered screens and can be wrong)
 - `data-count` on the share count
 - `data-pick="true"` on the pick card
 - `data-fly="true"` when a special exists

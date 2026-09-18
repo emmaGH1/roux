@@ -26,9 +26,22 @@ export type DiscoveryLocation = {
   is_club: boolean;
 };
 
+export type DatasetSource = "fixture" | "flynet";
+
+/**
+ * Why the dataset looks the way it does. The UI must never claim live data it
+ * isn't serving, so every screen can ask for this instead of guessing from env.
+ */
+export type DatasetReason =
+  | "ok"
+  | "no-key"
+  | "fixtures-forced"
+  | "key-rejected";
+
 export type Dataset = {
   locations: DiscoveryLocation[];
-  source: "fixture" | "flynet";
+  source: DatasetSource;
+  reason: DatasetReason;
 };
 
 const STAGING = "https://api.staging.blackbird.xyz/flynet/v1";
@@ -115,10 +128,11 @@ async function listAll<T>(
   return rest.reduce((all, page) => all.concat(page.items), first.items);
 }
 
-function fixtureDataset(): Dataset {
+function fixtureDataset(reason: DatasetReason): Dataset {
   const spots = restaurantsJson as RouxSpot[];
   return {
     source: "fixture",
+    reason,
     locations: spots.map((s) => ({
       location_id: s.id,
       restaurant_id: s.id,
@@ -138,8 +152,12 @@ export async function getDataset(): Promise<Dataset> {
   if (globalForCache.__rouxDataset) return globalForCache.__rouxDataset;
 
   const key = process.env.FLYNET_API_KEY;
-  if (process.env.USE_FIXTURES === "true" || !key) {
-    globalForCache.__rouxDataset = fixtureDataset();
+  if (!key) {
+    globalForCache.__rouxDataset = fixtureDataset("no-key");
+    return globalForCache.__rouxDataset;
+  }
+  if (process.env.USE_FIXTURES === "true") {
+    globalForCache.__rouxDataset = fixtureDataset("fixtures-forced");
     return globalForCache.__rouxDataset;
   }
 
@@ -185,13 +203,17 @@ export async function getDataset(): Promise<Dataset> {
       });
     }
 
-    globalForCache.__rouxDataset = { locations: mapped, source: "flynet" };
+    globalForCache.__rouxDataset = {
+      locations: mapped,
+      source: "flynet",
+      reason: "ok",
+    };
   } catch (err) {
     console.error(
       `[discovery] Flynet load failed (${base}), using fixtures:`,
       err instanceof FlynetError ? err.message : err
     );
-    globalForCache.__rouxDataset = fixtureDataset();
+    globalForCache.__rouxDataset = fixtureDataset("key-rejected");
   }
 
   return globalForCache.__rouxDataset;
@@ -202,6 +224,18 @@ export async function getDataset(): Promise<Dataset> {
  * Live open hours are a separate route per location — fetched for the pick only
  * — so anything live returns null here and the badge stays hidden.
  */
+/**
+ * The truth about where the data came from — for server components and
+ * /api/status alike. Calls getDataset(), which caches, so this is cheap.
+ */
+export async function getDatasetStatus(): Promise<{
+  source: DatasetSource;
+  reason: DatasetReason;
+}> {
+  const dataset = await getDataset();
+  return { source: dataset.source, reason: dataset.reason };
+}
+
 export function openNowAt(locationId: string): boolean | null {
   if (globalForCache.__rouxDataset?.source === "flynet") return null;
   const spot = (restaurantsJson as RouxSpot[]).find((s) => s.id === locationId);
